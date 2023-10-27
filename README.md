@@ -35,11 +35,12 @@ Next, install the dependencies in the `requirements.txt` file using,
 ```
 pip install -r requirements.txt
 
+```
+
 Next, you can download the data used for our benchmark [here](https://drive.google.com/file/d/1-QujU6oKJ6cyFdSQ8uRA8PMdOdVaZBVL/view?usp=sharing). Make sure to put it in the folder `./academic_data/`.
 
 Finally, the ForecastPFN model weights should be downloaded [here](https://drive.google.com/file/d/1acp5thS7I4g_6Gw40wNFGnU1Sx14z0cU/view?usp=sharing). Make sure to put it in the folder `./saved_weights/`.
 
-```
 
 # Inference with pretrained model <a name="Evaluation"></a>
 We released our pretrained ForecastPFN model and saved it in this repository.
