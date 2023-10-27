@@ -1,0 +1,20 @@
+# model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/20230110-232442/ckpts
+# current best model
+# model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/20230103-232854/ckpts
+# lower #params architecture model
+# model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/20230105-103045/ckpts
+# model trained on multiple frequencies
+model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/20230202-025828/ckpts
+
+# train_file: /home/ubuntu/notebooks/forecasting/pretraining/real_world_data/wikiweb_train.csv
+# test_file: /home/ubuntu/notebooks/forecasting/pretraining/real_world_data/wikiweb_test.csv
+# freq: D
+
+train_file: /home/ubuntu/notebooks/ForecastPFN/real_world_data/tourism_train.csv
+test_file: /home/ubuntu/notebooks/ForecastPFN/real_world_data/tourism_test.csv
+# should be from MS, D, W
+freq: MS
+
+# name of dataset
+name: wikiweb
+

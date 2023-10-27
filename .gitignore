@@ -1,0 +1,16 @@
+**/*.png
+.ipynb_checkpoints
+**/*.log
+__pycache__/
+**.pyc
+
+FEDformer/checkpoints/
+FEDformer/results/
+benchmark/results/
+benchmark/test_results/
+benchmark/checkpoints/
+benchmark/metalearned/git/
+benchmark/metalearned/project/
+benchmark/metalearned/experiments/tl/ForecastPFN/
+benchmark/figures
+

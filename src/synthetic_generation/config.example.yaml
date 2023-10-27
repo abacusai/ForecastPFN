@@ -1,0 +1,19 @@
+# URI prefix to the folder where datasets are going to be saved and loaded
+prefix: s3://realityengines.datasets/forecasting/pretrained/scratch/
+
+# version of the dataset
+version: test
+
+# (required) whether to use sub day timestamps or not
+sub_day: true
+
+# whether to use phase transitions or not (default: false)
+transition: true
+
+
+# number of series to generate
+num_series: 100_000
+
+options:
+  # fraction of time series to keep as linear random walk series
+  linear_random_walk_frac: 0

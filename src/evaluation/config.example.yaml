@@ -1,0 +1,5 @@
+# model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/run_500
+# model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/20230110-232442/ckpts
+model_path: s3://realityengines.datasets/forecasting/pretrained/gurnoor/models/20230119-115410/ckpts
+
+model_number: 9151769

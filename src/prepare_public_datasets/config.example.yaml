@@ -1,0 +1,11 @@
+prefix: s3://realityengines.datasets/forecasting/pretrained/gurnoor/
+
+# dataset_name: tourism
+# train_path: /home/ubuntu/notebooks/forecasting/pretraining/real_world_data/tourism_train.csv
+# # should be from MS, D, W
+# freq: MS
+
+dataset_name: wikiweb
+train_path: /home/ubuntu/notebooks/forecasting/pretraining/real_world_data/wikiweb_train.csv
+# should be from MS, D, W
+freq: D
