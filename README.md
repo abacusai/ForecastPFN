@@ -4,7 +4,7 @@
 
 ![Crates.io](https://img.shields.io/crates/l/Ap?color=orange)
 
-This is the anonymous code repository for the paper _ForecastPFN: Synthetically-Trained Zero-Shot Forecasting_. 
+This is the code repository for the paper [_ForecastPFN: Synthetically-Trained Zero-Shot Forecasting_](https://arxiv.org/abs/2311.01933). 
 
 ForecastPFN is the first zero-shot forecasting model that is trained purely on synthetic data.
 It is a prior-data fitted network, trained once, offline, which can make predictions on a new time series dataset in a single forward pass.
