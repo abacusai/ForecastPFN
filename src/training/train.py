@@ -16,13 +16,6 @@ from create_train_test_df import create_train_test_df
 from config_variables import Config
 from metalearned_validation import prepare_metalearned_test
 
-from constants import ACADEMIC_HOME, METALEARNED_HOME
-import sys
-sys.path.append(ACADEMIC_HOME)
-sys.path.append(METALEARNED_HOME)
-from resources.tourism.dataset import TourismDataset, TourismMeta
-from resources.m3.dataset import M3Dataset, M3Meta
-
 
 def get_combined_ds(config):
     version = config["version"]
@@ -30,16 +23,10 @@ def get_combined_ds(config):
     # all the datasets we have. Ideally we use only 3 of these for trainig
     # adjust the values in this list accordingly
     datasets = [
-        # load_tf_dataset(config["prefix"] + f"{version}/minute.tfrecords"),
-        # load_tf_dataset(config["prefix"] + f"{version}/hourly.tfrecords"),
         load_tf_dataset(config["prefix"] + f"{version}/daily.tfrecords"),
         load_tf_dataset(config["prefix"] + f"{version}/weekly.tfrecords"),
         load_tf_dataset(config["prefix"] + f"{version}/monthly.tfrecords"),
     ]
-
-    # # ucomment these lines to use the real world datasets in training
-    # tourism_ds = load_tf_dataset(config['prefix'] + 'tourism.tfrecords')
-    # wikiweb_ds = load_tf_dataset(config['prefix'] + 'wikiweb.tfrecords')
 
     combined_ds = tf.data.Dataset.choose_from_datasets(
         datasets, tf.data.Dataset.range(3).repeat()
@@ -64,27 +51,7 @@ def main():
     combined_ds = get_combined_ds(config)
     train_df, test_df = create_train_test_df(combined_ds, config["test_noise"])
 
-    # Tourism
-    tourism_yearly_test_df = prepare_metalearned_test(
-        TourismDataset, TourismMeta, 'Yearly', 8, 4).batch(1024, drop_remainder=False).cache()
-    tourism_quarterly_test_df = prepare_metalearned_test(
-        TourismDataset, TourismMeta, 'Quarterly', 16, 8).batch(1024, drop_remainder=False).cache()
-    tourism_monthly_test_df = prepare_metalearned_test(
-        TourismDataset, TourismMeta, 'Monthly', 48, 24).batch(1024, drop_remainder=False).cache()
-
-    # M3
-    m3_yearly_test_df = prepare_metalearned_test(
-        M3Dataset, M3Meta, 'M3Year', 12, 6).batch(1024, drop_remainder=False).cache()
-    m3_quarterly_test_df = prepare_metalearned_test(
-        M3Dataset, M3Meta, 'M3Quart', 16, 8).batch(1024, drop_remainder=False).cache()
-    m3_monthly_test_df = prepare_metalearned_test(
-        M3Dataset, M3Meta, 'M3Month', 36, 18).batch(1024, drop_remainder=False).cache()
-    m3_others_test_df = prepare_metalearned_test(
-        M3Dataset, M3Meta, 'M3Other', 16, 8).batch(1024, drop_remainder=False).cache()
-
-
     model = TransformerModel(scaler=config['scaler'])
-
 
     def smape(y_true, y_pred):
         """ Calculate Armstrong's original definition of sMAPE between `y_true` & `y_pred`.
@@ -102,10 +69,6 @@ def main():
             (y_true - y_pred) / backend.maximum(y_true + y_pred, backend.epsilon())
         )
         return 200.0 * backend.mean(diff, axis=-1)
-
-    # model = tf.keras.models.load_model(
-    #     's3://realityengines.datasets/forecasting/pretrained/gurnoor/models/mf_replicate_testnoiseT_shuffle1Millilon.20230427-131143/ckpts/', custom_objects={'smape': smape}
-    # )
 
     # need these two lines, else fit gives error
     batch_X, batch_y = next(iter(train_df.batch(2).take(1)))
@@ -193,18 +156,6 @@ def main():
             tf.keras.callbacks.TensorBoard(
                 f"/home/ubuntu/tensorboard/notebook/pretrained/{fit_id}"
             ),
-            # tf.keras.callbacks.LearningRateScheduler(
-            #     lambda epoch, lr: min(0.001, lr * (epoch + 1))
-            # )
-            AdditionalValidationSets([(tourism_yearly_test_df, 'tourism_yearly'),
-                                      (tourism_quarterly_test_df,'tourism_quarterly'),
-                                      (tourism_monthly_test_df,'tourism_monthly'),
-                                      (m3_yearly_test_df, 'm3_yearly'),
-                                      (m3_quarterly_test_df, 'm3_quarterly'),
-                                      (m3_monthly_test_df, 'm3_monthly'),
-                                      (m3_others_test_df, 'm3_others'),
-                                      ], 
-                                      tbCallback)
         ],
         add_history=True,
         add_progbar=True,
@@ -213,12 +164,12 @@ def main():
 
 
     model.fit(
-        train_df.shuffle(5_000_000, reshuffle_each_iteration=True).batch(
+        train_df.shuffle(5_000, reshuffle_each_iteration=True).batch(
             1024).prefetch(tf.data.AUTOTUNE),
         # train_df.take(1000_000).cache().shuffle(100_000).batch(1024).prefetch(tf.data.AUTOTUNE),
         validation_data=test_df.batch(1024, drop_remainder=False).cache(),
         epochs=700,
-        steps_per_epoch=1000,
+        steps_per_epoch=10,
         callbacks=callbacks,
     )
 

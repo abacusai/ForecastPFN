@@ -1,0 +1,12 @@
+prefix: s3://your-bucket-here/model/
+
+version: multiple_frequencies
+
+model_save_name: ForecastPFN
+
+scaler: robust
+
+test_noise : True
+
+# (required) true if data contains minutely/hourly data
+sub_day: False

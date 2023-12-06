@@ -273,13 +273,10 @@ done;
 is_training=0
 model=ForecastPFN
 
-for budget in 100 #200 500 1000 2000 5000 10000
-do
-
 for budget in 50 #100 150 200 250 300 500  
 do
 
-for preLen in 6 8 14 18 24 36 48 60
+for preLen in 6 8 14 18 24 36 48
 do
 
 

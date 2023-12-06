@@ -1,5 +1,5 @@
 # URI prefix to the folder where datasets are going to be saved and loaded
-prefix: s3://realityengines.datasets/forecasting/pretrained/scratch/
+prefix: s3://your-location-here/data
 
 # version of the dataset
 version: test
