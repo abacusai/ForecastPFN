@@ -4,37 +4,52 @@ import os
 import pathlib
 import sys
 import urllib
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from glob import glob
 from itertools import dropwhile, takewhile
+from math import pow
 from typing import Any, Callable, List
 from urllib import request
 
 import numpy as np
 import pandas as pd
-from math import pow
 from tqdm import tqdm
 
 
 def get_module_path():
     module_path = os.path.dirname(inspect.stack()[1].filename)
-    if module_path.startswith('/project/source/'):  # happens in jupyterlab
-        module_path = module_path.replace('/project/source/', '')
+    if module_path.startswith("/project/source/"):  # happens in jupyterlab
+        module_path = module_path.replace("/project/source/", "")
     return module_path
 
 
 def round_half_up(n, precision):
-    return int(Decimal(n * pow(10, precision)).to_integral_value(rounding=ROUND_HALF_UP)) / pow(10, precision)
+    return int(
+        Decimal(n * pow(10, precision)).to_integral_value(rounding=ROUND_HALF_UP)
+    ) / pow(10, precision)
 
 
-def median_ensemble(experiment_path: str,
-                    summary_filter: str = '**',
-                    forecast_file: str = 'forecast.csv',
-                    group_by: str = 'id'):
-    return pd.concat([pd.read_csv(file)
-                      for file in
-                      tqdm(glob(os.path.join(experiment_path, summary_filter, forecast_file)))], sort=False) \
-        .set_index(group_by).groupby(level=group_by, sort=False).median().values
+def median_ensemble(
+    experiment_path: str,
+    summary_filter: str = "**",
+    forecast_file: str = "forecast.csv",
+    group_by: str = "id",
+):
+    return (
+        pd.concat(
+            [
+                pd.read_csv(file)
+                for file in tqdm(
+                    glob(os.path.join(experiment_path, summary_filter, forecast_file))
+                )
+            ],
+            sort=False,
+        )
+        .set_index(group_by)
+        .groupby(level=group_by, sort=False)
+        .median()
+        .values
+    )
 
 
 def group_values(values: np.ndarray, groups: np.ndarray, group_name: str):
@@ -50,23 +65,28 @@ def download_url(url: str, file_path: str) -> None:
     """
 
     def progress(count, block_size, total_size):
-        sys.stdout.write('\rDownloading {} from {} {:.1f}%'.format(file_path, url, float(count * block_size) / float(
-            total_size) * 100.0))
+        sys.stdout.write(
+            "\rDownloading {} from {} {:.1f}%".format(
+                file_path, url, float(count * block_size) / float(total_size) * 100.0
+            )
+        )
         sys.stdout.flush()
 
     if not os.path.isfile(file_path):
         opener = urllib.request.build_opener()
-        opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+        opener.addheaders = [("User-agent", "Mozilla/5.0")]
         urllib.request.install_opener(opener)
         pathlib.Path(os.path.dirname(file_path)).mkdir(parents=True, exist_ok=True)
         f, _ = request.urlretrieve(url, file_path, progress)
-        sys.stdout.write('\n')
+        sys.stdout.write("\n")
         sys.stdout.flush()
         file_info = os.stat(f)
-        logging.info(f'Successfully downloaded {os.path.basename(file_path)} {file_info.st_size} bytes.')
+        logging.info(
+            f"Successfully downloaded {os.path.basename(file_path)} {file_info.st_size} bytes."
+        )
     else:
         file_info = os.stat(file_path)
-        logging.info(f'File already exists: {file_path} {file_info.st_size} bytes.')
+        logging.info(f"File already exists: {file_path} {file_info.st_size} bytes.")
 
 
 def url_file_name(url: str) -> str:
@@ -75,7 +95,7 @@ def url_file_name(url: str) -> str:
     :param url: URL to extract file name from.
     :return: File name.
     """
-    return url.split('/')[-1] if len(url) > 0 else ''
+    return url.split("/")[-1] if len(url) > 0 else ""
 
 
 def clean_nans(values):
@@ -107,5 +127,8 @@ def ordered_insert(ordered_stack: List, value, f: Callable[[Any, Any], bool]):
     (and truncated if necessary).
     :return: New instance of stack with inserted element.
     """
-    return (list(takewhile(lambda x: f(x, value), ordered_stack)) + [value] +
-            list(dropwhile(lambda x: f(x, value), ordered_stack)))[:len(ordered_stack)]
+    return (
+        list(takewhile(lambda x: f(x, value), ordered_stack))
+        + [value]
+        + list(dropwhile(lambda x: f(x, value), ordered_stack))
+    )[: len(ordered_stack)]

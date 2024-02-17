@@ -2,9 +2,8 @@
 Module containing different scaler functions
 """
 import tensorflow as tf
-import tensorflow_io
 from tensorflow.keras import layers
-import numpy as np
+
 
 def robust_scaler(inputs, epsilon):
     # inputs.shape = (batch_size, history_len, 1)
@@ -29,14 +28,10 @@ def robust_scaler(inputs, epsilon):
 
     # calculate mean and std of clipped data
     clipped_mean = tf.math.reduce_mean(
-        clipped_and_masked,
-        axis=1,
-        keepdims=True
+        clipped_and_masked, axis=1, keepdims=True
     ).to_tensor()
     clipped_std = tf.math.reduce_std(
-        clipped_and_masked,
-        axis=1,
-        keepdims=True
+        clipped_and_masked, axis=1, keepdims=True
     ).to_tensor()
 
     # scale is of shape (batch_size,1,1)
@@ -51,10 +46,8 @@ def robust_scaler(inputs, epsilon):
 
 
 def max_scaling(inputs, epsilon):
-
-    scaler = layers.GlobalMaxPooling1D(name='MaxScaling', keepdims=1)
+    scaler = layers.GlobalMaxPooling1D(name="MaxScaling", keepdims=1)
 
     scale = scaler(inputs) + epsilon
     output = inputs / scale
     return scale, output
-

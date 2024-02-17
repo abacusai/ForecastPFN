@@ -2,8 +2,8 @@
 Utility functions for training script
 """
 import tensorflow as tf
-import tensorflow_io
 from constants import TF_SCHEMA
+
 
 def decode_fn(record_bytes):
     """
@@ -16,4 +16,4 @@ def load_tf_dataset(src: str):
     """
     Method to load and decode dataset from tfrecord files
     """
-    return tf.data.TFRecordDataset(src, compression_type='GZIP').map(decode_fn)
+    return tf.data.TFRecordDataset(src, compression_type="GZIP").map(decode_fn)

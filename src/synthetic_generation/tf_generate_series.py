@@ -2,17 +2,17 @@
 Module to convert process synthetic series using tensorflow
 """
 
+from datetime import date
+from tempfile import NamedTemporaryFile
+
 import fastavro
-import tensorflow_io
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from datetime import date
-from tempfile import NamedTemporaryFile
-from reainternal.cloud import CloudLocation
+from constants import CONTEXT_LENGTH
 from generate_series import generate
-from constants import *
-from series_config import *
+from reainternal.cloud import CloudLocation
+from series_config import PRODUCT_SCHEMA, TF_SCHEMA
 
 
 def tf_generate_n(
@@ -43,7 +43,7 @@ def tf_generate_n(
                 size, freq_index=freq_index, start=start, options=options
             )
         # cfg is the name of the time series
-        # sample is a pandas dataframe where 
+        # sample is a pandas dataframe where
         #   the index is the datetime object
         #   columns `series_value` and `noise`
 
@@ -87,9 +87,7 @@ def decode_fn(record_bytes):
 
 
 def load_tf_dataset(prefix: str, src: str):
-    return tf.data.TFRecordDataset(prefix + src, compression_type="GZIP").map(
-        decode_fn
-    )
+    return tf.data.TFRecordDataset(prefix + src, compression_type="GZIP").map(decode_fn)
 
 
 def convert_tf_to_rows(records):
@@ -100,7 +98,7 @@ def convert_tf_to_rows(records):
         for ts, y, noise in zip(
             (date.fromtimestamp(v / 1_000_000_000) for v in r["ts"]),
             (float(v) for v in r["y"]),
-            (float(_noise) for _noise in r["noise"])
+            (float(_noise) for _noise in r["noise"]),
         ):
             yield {"id": id_, "ts": ts, "y": y, "noise": noise}
 

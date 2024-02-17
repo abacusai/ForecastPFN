@@ -32,7 +32,9 @@ def smape_m3_dataset_horizon(target_dataset, forecast_dataset, horizon):
     i = 0
     for prediction, target in zip(forecast_dataset.values, target_dataset.values):
         if target_dataset.horizons[i] >= horizon:
-            smape_cum += smape_m3(prediction[horizon-1], target[-len(prediction)+horizon-1]).sum()
+            smape_cum += smape_m3(
+                prediction[horizon - 1], target[-len(prediction) + horizon - 1]
+            ).sum()
             smape_n_points += 1
         i += 1
 
@@ -57,9 +59,12 @@ def smape_m3_dataset_horizon_avg(target_dataset, forecast_dataset, horizon):
     for prediction, target in zip(forecast_dataset.values, target_dataset.values):
         horizon_clamped = min(target_dataset.horizons[i], horizon)
         if horizon_clamped == target_dataset.horizons[i]:
-            target_clamped = target[-target_dataset.horizons[i]:]
+            target_clamped = target[-target_dataset.horizons[i] :]
         else:
-            target_clamped = target[-target_dataset.horizons[i]:-target_dataset.horizons[i]+horizon_clamped]
+            target_clamped = target[
+                -target_dataset.horizons[i] : -target_dataset.horizons[i]
+                + horizon_clamped
+            ]
         smape_cum += smape_m3(prediction[:horizon_clamped], target_clamped).sum()
         smape_n_points += len(target_clamped)
         i += 1
@@ -107,7 +112,9 @@ def smape_m3_dataset_horizon(target_dataset, forecast_dataset, horizon):
     i = 0
     for prediction, target in zip(forecast_dataset.values, target_dataset.values):
         if target_dataset.horizons[i] >= horizon:
-            smape_cum += smape_m3(prediction[horizon-1], target[-len(prediction)+horizon-1]).sum()
+            smape_cum += smape_m3(
+                prediction[horizon - 1], target[-len(prediction) + horizon - 1]
+            ).sum()
             smape_n_points += 1
         i += 1
 
@@ -132,12 +139,14 @@ def smape_m3_dataset_horizon_avg(target_dataset, forecast_dataset, horizon):
     for prediction, target in zip(forecast_dataset.values, target_dataset.values):
         horizon_clamped = min(target_dataset.horizons[i], horizon)
         if horizon_clamped == target_dataset.horizons[i]:
-            target_clamped = target[-target_dataset.horizons[i]:]
+            target_clamped = target[-target_dataset.horizons[i] :]
         else:
-            target_clamped = target[-target_dataset.horizons[i]:-target_dataset.horizons[i]+horizon_clamped]
+            target_clamped = target[
+                -target_dataset.horizons[i] : -target_dataset.horizons[i]
+                + horizon_clamped
+            ]
         smape_cum += smape_m3(prediction[:horizon_clamped], target_clamped).sum()
         smape_n_points += len(target_clamped)
         i += 1
 
     return smape_cum / smape_n_points
-

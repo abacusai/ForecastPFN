@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
-
-from common.evaluator import Evaluator, EvaluationResult
+from common.evaluator import EvaluationResult, Evaluator
 from common.metrics import nd
 from common.timeseries import TimeseriesBundle
 from common.utils import round_half_up
@@ -15,6 +14,11 @@ class ElectricityEvaluator(Evaluator):
     precision: int = 2
 
     def evaluate(self, forecasts: TimeseriesBundle) -> EvaluationResult:
-        return {'metric': round_half_up(self.metric_fn(np.array(forecasts.values()),
-                                                       np.array(self.test_set.values())),
-                                        self.precision)}
+        return {
+            "metric": round_half_up(
+                self.metric_fn(
+                    np.array(forecasts.values()), np.array(self.test_set.values())
+                ),
+                self.precision,
+            )
+        }

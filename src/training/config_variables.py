@@ -2,6 +2,7 @@
 Module containing configuration setting for the script
 """
 
+
 class Config:
     is_sub_day = False
 

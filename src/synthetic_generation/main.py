@@ -2,17 +2,17 @@
 Module to generate synthetic dataset for pre training
 a time series forecasting model
 """
-import yaml
 import argparse
-import pandas as pd
+
+import yaml
+from config_variables import Config
 from tf_generate_series import (
+    convert_tf_to_rows,
+    generate_product_input,
+    load_tf_dataset,
     save_tf_records,
     tf_generate_n,
-    convert_tf_to_rows,
-    load_tf_dataset,
-    generate_product_input,
 )
-from config_variables import Config
 
 
 def save_tf_dataset(prefix: str, version: str, options: dict, num_series: int = 10_000):
@@ -43,7 +43,9 @@ def generate_product_input_dataset(prefix, version):
             prefix,
             f"{version}/{freq}.avro",
             convert_tf_to_rows(
-                load_tf_dataset(prefix, f"{version}/{freq}.tfrecords").as_numpy_iterator()
+                load_tf_dataset(
+                    prefix, f"{version}/{freq}.tfrecords"
+                ).as_numpy_iterator()
             ),
         )
 
@@ -60,8 +62,9 @@ def main():
     if "transition" in config:
         Config.set_transition(config["transition"])
 
-
-    save_tf_dataset(config["prefix"], config["version"], config["options"], config["num_series"])
+    save_tf_dataset(
+        config["prefix"], config["version"], config["options"], config["num_series"]
+    )
     generate_product_input_dataset(config["prefix"], config["version"])
 
 

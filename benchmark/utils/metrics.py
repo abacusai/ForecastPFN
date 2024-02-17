@@ -4,7 +4,9 @@ from keras import backend
 
 
 def RSE(pred, true):
-    return np.sqrt(np.sum((true - pred) ** 2)) / np.sqrt(np.sum((true - true.mean()) ** 2))
+    return np.sqrt(np.sum((true - pred) ** 2)) / np.sqrt(
+        np.sum((true - true.mean()) ** 2)
+    )
 
 
 def CORR(pred, true):
@@ -42,20 +44,20 @@ def metric(pred, true):
 
     return mae, mse, rmse, mape, mspe
 
+
 def smape(y_true, y_pred):
-    """ Calculate Armstrong's original definition of sMAPE between `y_true` & `y_pred`.
-        `loss = 200 * mean(abs((y_true - y_pred) / (y_true + y_pred), axis=-1)`
-        Args:
-        y_true: Ground truth values. shape = `[batch_size, d0, .. dN]`.
-        y_pred: The predicted values. shape = `[batch_size, d0, .. dN]`.
-        Returns:
-        Symmetric mean absolute percentage error values. shape = `[batch_size, d0, ..
-        dN-1]`.
-        """
+    """Calculate Armstrong's original definition of sMAPE between `y_true` & `y_pred`.
+    `loss = 200 * mean(abs((y_true - y_pred) / (y_true + y_pred), axis=-1)`
+    Args:
+    y_true: Ground truth values. shape = `[batch_size, d0, .. dN]`.
+    y_pred: The predicted values. shape = `[batch_size, d0, .. dN]`.
+    Returns:
+    Symmetric mean absolute percentage error values. shape = `[batch_size, d0, ..
+    dN-1]`.
+    """
     y_pred = tf.convert_to_tensor(y_pred)
     y_true = tf.cast(y_true, y_pred.dtype)
     diff = tf.abs(
-        (y_true - y_pred) /
-        backend.maximum(y_true + y_pred, backend.epsilon())
+        (y_true - y_pred) / backend.maximum(y_true + y_pred, backend.epsilon())
     )
     return 200.0 * backend.mean(diff, axis=-1)

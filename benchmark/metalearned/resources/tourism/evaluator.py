@@ -3,8 +3,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
-
-from common.evaluator import Evaluator, EvaluationResult
+from common.evaluator import EvaluationResult, Evaluator
 from common.metrics import mape
 from common.timeseries import TimeseriesBundle
 from resources.tourism.dataset import TourismMeta
@@ -22,8 +21,12 @@ class TourismEvaluator(Evaluator):
         offset = 0
 
         for sp in TourismMeta.seasonal_patterns:
-            target_for_sp = self.test_set.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
-            forecast_for_sp = forecasts.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
+            target_for_sp = self.test_set.filter(
+                lambda ts: ts.meta["seasonal_pattern"] == sp
+            )
+            forecast_for_sp = forecasts.filter(
+                lambda ts: ts.meta["seasonal_pattern"] == sp
+            )
 
             target = np.array(target_for_sp.values())
             forecast = np.array(forecast_for_sp.values())
@@ -39,5 +42,7 @@ class TourismEvaluator(Evaluator):
             results[sp] = round(float(np.mean(score)), self.precision)
             offset += len(target)
 
-        results['Average'] = round(cumulative_metrics / cumulative_points, self.precision)
+        results["Average"] = round(
+            cumulative_metrics / cumulative_points, self.precision
+        )
         return results
