@@ -11,7 +11,7 @@ def decor_time(func):
         now = time.time()
         y = func(*args, **kw)
         t = time.time() - now
-        print("call <{}>, time={}".format(func.__name__, t))
+        print('call <{}>, time={}'.format(func.__name__, t))
         return y
 
     return func2
@@ -35,7 +35,7 @@ class AutoCorrelation(nn.Module):
         configs=None,
     ):
         super(AutoCorrelation, self).__init__()
-        print("Autocorrelation used !")
+        print('Autocorrelation used !')
         self.factor = factor
         self.scale = scale
         self.mask_flag = mask_flag
@@ -172,8 +172,8 @@ class AutoCorrelation(nn.Module):
                 q_list = []
                 k_list = []
                 for q, k, j in zip(qs, ks, j_list):
-                    q_list += [interpolate(q, scale_factor=j, mode="linear")[:, :, -L:]]
-                    k_list += [interpolate(k, scale_factor=j, mode="linear")[:, :, -L:]]
+                    q_list += [interpolate(q, scale_factor=j, mode='linear')[:, :, -L:]]
+                    k_list += [interpolate(k, scale_factor=j, mode='linear')[:, :, -L:]]
                 queries = (
                     torch.stack([i.reshape([B, H, E, L]) for i in q_list], dim=3)
                     .reshape([B, H, -1, L])

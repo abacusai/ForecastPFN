@@ -3,7 +3,7 @@ import time
 
 import yaml
 
-sys.path.append("/home/ubuntu/ForecastPFN/academic_comparison/")
+sys.path.append('/home/ubuntu/ForecastPFN/academic_comparison/')
 
 import os
 import warnings
@@ -22,15 +22,15 @@ from exp.torch_utils import *
 from transformer_models.models import Autoformer, FEDformer, Informer, Transformer
 from utils.tools import EarlyStopping, TimeBudget, adjust_learning_rate
 
-sys.path.append("/home/ubuntu/ForecastPFN/src/")
-sys.path.append("/home/ubuntu/ForecastPFN/src/training/")
+sys.path.append('/home/ubuntu/ForecastPFN/src/')
+sys.path.append('/home/ubuntu/ForecastPFN/src/training/')
 import tensorflow as tf
 from training.config_variables import Config
 from training.constants import HISTORY_LEN, PADDING
 from training.prepare_dataset import filter_unusable_points
 from training.utils import load_tf_dataset
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings('ignore')
 
 
 CONTEXT_LENGTH = 500
@@ -45,13 +45,13 @@ class Exp_Transformer_Meta(Exp_Basic):
 
     def _build_model(self):
         model_dict = {
-            "FEDformer": FEDformer,
-            "FEDformer_Meta": FEDformer,
-            "FEDformer-w": FEDformer,
-            "FEDformer-f": FEDformer,
-            "Autoformer": Autoformer,
-            "Transformer": Transformer,
-            "Informer": Informer,
+            'FEDformer': FEDformer,
+            'FEDformer_Meta': FEDformer,
+            'FEDformer-w': FEDformer,
+            'FEDformer-f': FEDformer,
+            'Autoformer': Autoformer,
+            'Transformer': Transformer,
+            'Informer': Informer,
         }
         model = model_dict[self.args.model].Model(self.args).float()
 
@@ -80,22 +80,22 @@ class Exp_Transformer_Meta(Exp_Basic):
 
         def build_frames(r: Dict[str, tf.Tensor]):
             raw_date_info = tf.numpy_function(
-                compute_time_features, inp=[r["ts"]], Tout=tf.int64
+                compute_time_features, inp=[r['ts']], Tout=tf.int64
             )
             date_info = tf.signal.frame(
                 tf.pad(raw_date_info, [[PADDING, 0], [0, 0]]), HISTORY_LEN, 1, axis=0
             )
 
             history = tf.signal.frame(
-                tf.pad(r["y"], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1
+                tf.pad(r['y'], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1
             )
             noise = tf.signal.frame(
-                tf.pad(r["noise"], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1
+                tf.pad(r['noise'], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1
             )
 
             target_dates = tf.signal.frame(raw_date_info, TARGET_LEN, 1, axis=0)
-            target_values = tf.signal.frame(r["y"], TARGET_LEN, 1, axis=-1)
-            target_noise = tf.signal.frame(r["noise"], TARGET_LEN, 1, axis=-1)
+            target_values = tf.signal.frame(r['y'], TARGET_LEN, 1, axis=-1)
+            target_noise = tf.signal.frame(r['noise'], TARGET_LEN, 1, axis=-1)
 
             start_index = target_values.shape[0] - TRIM_LEN
 
@@ -145,9 +145,9 @@ class Exp_Transformer_Meta(Exp_Basic):
         def remove_noise(x, y):
             return (
                 {
-                    "ts": x["ts"],
-                    "history": x["history"],
-                    "target_ts": x["target_ts"],
+                    'ts': x['ts'],
+                    'history': x['history'],
+                    'target_ts': x['target_ts'],
                 },
                 y,
             )
@@ -156,7 +156,7 @@ class Exp_Transformer_Meta(Exp_Basic):
             base_train_df = combined_ds.skip(30).map(build_frames).repeat()
             base_test_df = combined_ds.take(30).map(build_frames)
             task_map = {
-                "point": gen_random_single_point,
+                'point': gen_random_single_point,
             }
             train_tasks_dfs = [
                 base_train_df.map(func, num_parallel_calls=tf.data.AUTOTUNE)
@@ -172,7 +172,7 @@ class Exp_Transformer_Meta(Exp_Basic):
             )
 
             task_map_test = {
-                "point": gen_random_single_point_no_noise,
+                'point': gen_random_single_point_no_noise,
             }
 
             if test_noise:
@@ -199,11 +199,11 @@ class Exp_Transformer_Meta(Exp_Basic):
             return train_df, test_df
 
         def get_combined_ds(config):
-            version = config["version"]
+            version = config['version']
             datasets = [
                 # load_tf_dataset(config["prefix"] + f"{version}/minute.tfrecords"),
                 # load_tf_dataset(config["prefix"] + f"{version}/hourly.tfrecords"),
-                load_tf_dataset(config["prefix"] + f"{version}/daily.tfrecords"),
+                load_tf_dataset(config['prefix'] + f'{version}/daily.tfrecords'),
                 # load_tf_dataset(config["prefix"] + f"{version}/weekly.tfrecords"),
                 # load_tf_dataset(config["prefix"] + f"{version}/monthly.tfrecords"),
             ]
@@ -213,28 +213,28 @@ class Exp_Transformer_Meta(Exp_Basic):
 
             return combined_ds
 
-        if flag == "test":
+        if flag == 'test':
             data_set, data_loader = data_provider(self.args, flag)
-        elif flag == "train":
+        elif flag == 'train':
             with open(
-                "/home/ubuntu/ForecastPFN/src/training/config_mf_replicate_testnoiseF.yaml"
+                '/home/ubuntu/ForecastPFN/src/training/config_mf_replicate_testnoiseF.yaml'
             ) as config_file:
                 config = yaml.load(config_file, yaml.loader.SafeLoader)
 
             combined_ds = get_combined_ds(config)
-            train_df, vali_df = create_train_test_df(combined_ds, config["test_noise"])
+            train_df, vali_df = create_train_test_df(combined_ds, config['test_noise'])
             data_loader = TFRecordDataLoader(
                 train_df, self.args.batch_size, True, 10_000
             )
             data_set = None
-        elif flag == "val":
+        elif flag == 'val':
             with open(
-                "/home/ubuntu/ForecastPFN/src/training/config_mf_replicate_testnoiseF.yaml"
+                '/home/ubuntu/ForecastPFN/src/training/config_mf_replicate_testnoiseF.yaml'
             ) as config_file:
                 config = yaml.load(config_file, yaml.loader.SafeLoader)
 
             combined_ds = get_combined_ds(config)
-            train_df, vali_df = create_train_test_df(combined_ds, config["test_noise"])
+            train_df, vali_df = create_train_test_df(combined_ds, config['test_noise'])
             data_set = None
             data_loader = TFRecordDataLoader(
                 vali_df, self.args.batch_size, True, 10_000
@@ -259,11 +259,11 @@ class Exp_Transformer_Meta(Exp_Basic):
                 X_batch = numpy_to_torch(batch_data[0], self.device)
                 y_batch = torch.from_numpy(batch_data[1]).to(self.device)
 
-                batch_x = X_batch["history"].float().to(self.device).unsqueeze(2)
+                batch_x = X_batch['history'].float().to(self.device).unsqueeze(2)
                 batch_y = y_batch.float().to(self.device).unsqueeze(2)
 
-                batch_x_mark = X_batch["ts"].float().to(self.device)
-                batch_y_mark = X_batch["target_ts"].float().to(self.device)
+                batch_x_mark = X_batch['ts'].float().to(self.device)
+                batch_y_mark = X_batch['target_ts'].float().to(self.device)
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len :, :]).float()
@@ -292,7 +292,7 @@ class Exp_Transformer_Meta(Exp_Basic):
                         outputs = self.model(
                             batch_x, batch_x_mark, dec_inp, batch_y_mark
                         )
-                f_dim = -1 if self.args.features == "MS" else 0
+                f_dim = -1 if self.args.features == 'MS' else 0
                 batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(self.device)
 
                 pred = outputs.detach().cpu()
@@ -348,7 +348,7 @@ class Exp_Transformer_Meta(Exp_Basic):
                         outputs = self.model(
                             batch_x, batch_x_mark, dec_inp, batch_y_mark
                         )
-                f_dim = -1 if self.args.features == "MS" else 0
+                f_dim = -1 if self.args.features == 'MS' else 0
                 batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(self.device)
 
                 pred = outputs.detach().cpu()
@@ -365,9 +365,9 @@ class Exp_Transformer_Meta(Exp_Basic):
     def train(self, setting):
         print(setting)
 
-        train_data, train_loader = self._get_data(flag="train")
-        vali_data, vali_loader = self._get_data(flag="val")
-        test_data, test_loader = self._get_data(flag="test")
+        train_data, train_loader = self._get_data(flag='train')
+        vali_data, vali_loader = self._get_data(flag='val')
+        test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -399,11 +399,11 @@ class Exp_Transformer_Meta(Exp_Basic):
                 X_batch = numpy_to_torch(batch_data[0], self.device)
                 y_batch = torch.from_numpy(batch_data[1]).to(self.device)
 
-                batch_x = X_batch["history"].float().to(self.device).unsqueeze(2)
+                batch_x = X_batch['history'].float().to(self.device).unsqueeze(2)
                 batch_y = y_batch.float().to(self.device).unsqueeze(2)
 
-                batch_x_mark = X_batch["ts"].float().to(self.device)
-                batch_y_mark = X_batch["target_ts"].float().to(self.device)
+                batch_x_mark = X_batch['ts'].float().to(self.device)
+                batch_y_mark = X_batch['target_ts'].float().to(self.device)
 
                 iter_count += 1
                 model_optim.zero_grad()
@@ -428,7 +428,7 @@ class Exp_Transformer_Meta(Exp_Basic):
                                 batch_x, batch_x_mark, dec_inp, batch_y_mark
                             )
 
-                        f_dim = -1 if self.args.features == "MS" else 0
+                        f_dim = -1 if self.args.features == 'MS' else 0
                         batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(
                             self.device
                         )
@@ -444,7 +444,7 @@ class Exp_Transformer_Meta(Exp_Basic):
                             batch_x, batch_x_mark, dec_inp, batch_y_mark
                         )
 
-                    f_dim = -1 if self.args.features == "MS" else 0
+                    f_dim = -1 if self.args.features == 'MS' else 0
                     batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(self.device)
 
                     loss = criterion(outputs, batch_y)
@@ -460,11 +460,11 @@ class Exp_Transformer_Meta(Exp_Basic):
 
                 self.train_timer.step()
                 if self.train_timer.budget_reached:
-                    early_stopping.save_checkpoint("", self.model, path)
-                    print(f"Budget reached: {self.train_timer.total_time}")
+                    early_stopping.save_checkpoint('', self.model, path)
+                    print(f'Budget reached: {self.train_timer.total_time}')
                     self.train_timer.end_timer()
 
-                    best_model_path = path + "/" + "checkpoint.pth"
+                    best_model_path = path + '/' + 'checkpoint.pth'
                     self.model.load_state_dict(torch.load(best_model_path))
 
                     return self.model
@@ -472,13 +472,13 @@ class Exp_Transformer_Meta(Exp_Basic):
                 if batch_i >= 1_000:
                     break
 
-            print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            print('Epoch: {} cost time: {}'.format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.test(test_data, test_loader, criterion)
 
             print(
-                "Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
+                'Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}'.format(
                     epoch + 1, train_steps, train_loss, vali_loss, test_loss
                 )
             )
@@ -491,7 +491,7 @@ class Exp_Transformer_Meta(Exp_Basic):
 
         self.train_timer.end_timer()
 
-        best_model_path = path + "/" + "checkpoint.pth"
+        best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
 
         return self.model

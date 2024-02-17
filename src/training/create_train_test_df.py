@@ -23,10 +23,10 @@ def remove_noise(x, y):
     """
     return (
         {
-            "ts": x["ts"],
-            "history": x["history"],
-            "target_ts": x["target_ts"],
-            "task": x["task"],
+            'ts': x['ts'],
+            'history': x['history'],
+            'target_ts': x['target_ts'],
+            'task': x['task'],
         },
         y,
     )
@@ -42,9 +42,9 @@ def create_train_test_df(combined_ds, test_noise=False):
     base_train_df = combined_ds.skip(30).map(build_frames).repeat()
     base_test_df = combined_ds.take(30).map(build_frames)
     task_map = {
-        "point": gen_random_single_point,
-        "mean": gen_mean_to_random_date,
-        "stdev": gen_std_to_random_date,
+        'point': gen_random_single_point,
+        'mean': gen_mean_to_random_date,
+        'stdev': gen_std_to_random_date,
     }
     train_tasks_dfs = [
         base_train_df.map(func, num_parallel_calls=tf.data.AUTOTUNE)
@@ -59,9 +59,9 @@ def create_train_test_df(combined_ds, test_noise=False):
     )
 
     task_map_test = {
-        "point": gen_random_single_point_no_noise,
-        "mean": gen_mean_to_random_date_no_noise,
-        "stdev": gen_std_to_random_date_no_noise,
+        'point': gen_random_single_point_no_noise,
+        'mean': gen_mean_to_random_date_no_noise,
+        'stdev': gen_std_to_random_date_no_noise,
     }
 
     if test_noise:

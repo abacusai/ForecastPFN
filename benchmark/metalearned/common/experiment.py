@@ -7,9 +7,9 @@ from typing import Callable, Dict
 
 from tqdm import tqdm
 
-experiments_dir = os.path.join("project", "experiments")
-parameters_file_name = "parameters.json"
-command_file_name = "experiment.cmd"
+experiments_dir = os.path.join('project', 'experiments')
+parameters_file_name = 'parameters.json'
+command_file_name = 'experiment.cmd'
 
 
 def create_experiment(
@@ -39,13 +39,13 @@ def create_experiment(
             experiment_variables.append([(key, element) for element in val])
 
     # create experiment instance(s)
-    logging.info("Generating experiments ...")
+    logging.info('Generating experiments ...')
     for variables_instance in tqdm(product(*experiment_variables)):
-        sub_experiment_name = ",".join(
+        sub_experiment_name = ','.join(
             [
-                "%s=%.4g" % (name, value)
+                '%s=%.4g' % (name, value)
                 if isinstance(value, float)
-                else "%s=%s" % (name, str(value).replace(" ", "_"))
+                else '%s=%s' % (name, str(value).replace(' ', '_'))
                 for name, value in dict(variables_instance).items()
             ]
         )
@@ -53,10 +53,10 @@ def create_experiment(
         Path(sub_experiment_path).mkdir(parents=True, exist_ok=False)
 
         # write parameters json
-        with open(os.path.join(sub_experiment_path, parameters_file_name), "w") as f:
+        with open(os.path.join(sub_experiment_path, parameters_file_name), 'w') as f:
             json.dump(dict(**{**parameters, **dict(variables_instance)}), f, indent=4)
         # write command file
-        with open(os.path.join(sub_experiment_path, command_file_name), "w") as f:
+        with open(os.path.join(sub_experiment_path, command_file_name), 'w') as f:
             f.write(command(sub_experiment_path, dict(variables_instance)))
         callback(
             sub_experiment_path, dict(**{**parameters, **dict(variables_instance)})
@@ -70,5 +70,5 @@ def load_experiment_parameters(experiment_path: str) -> Dict:
     :param experiment_path: Path to experiment directory where the parameters.json file is located.
     :return: Parameters dictionary.
     """
-    with open(os.path.join(experiment_path, parameters_file_name), "r") as f:
+    with open(os.path.join(experiment_path, parameters_file_name), 'r') as f:
         return json.load(f)

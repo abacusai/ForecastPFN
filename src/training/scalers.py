@@ -46,7 +46,7 @@ def robust_scaler(inputs, epsilon):
 
 
 def max_scaling(inputs, epsilon):
-    scaler = layers.GlobalMaxPooling1D(name="MaxScaling", keepdims=1)
+    scaler = layers.GlobalMaxPooling1D(name='MaxScaling', keepdims=1)
 
     scale = scaler(inputs) + epsilon
     output = inputs / scale

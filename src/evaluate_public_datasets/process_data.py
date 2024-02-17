@@ -24,6 +24,6 @@ def read_timeseries_file(filename):
 
 def generate_tf_test_examples(name, train_data, test_data, freq):
     len_data = len(train_data) + len(test_data)
-    dates = pd.date_range(start="2010-01-01", periods=len_data, freq=freq)
+    dates = pd.date_range(start='2010-01-01', periods=len_data, freq=freq)
 
     return name, dates, train_data, test_data

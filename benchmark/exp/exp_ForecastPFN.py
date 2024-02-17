@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from exp.exp_basic import Exp_Basic
 from utils.metrics import smape
 
-gpus = tf.config.experimental.list_physical_devices("GPU")
+gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
     try:
         tf.config.experimental.set_virtual_device_configuration(
@@ -23,7 +23,7 @@ if gpus:
         print(e)
 
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings('ignore')
 
 
 class Exp_ForecastPFN(Exp_Basic):
@@ -112,16 +112,16 @@ class Exp_ForecastPFN(Exp_Basic):
         )
 
         model_input = {
-            "ts": ts,
-            "history": history,
-            "target_ts": target_ts,
-            "task": task,
+            'ts': ts,
+            'history': history,
+            'target_ts': target_ts,
+            'task': task,
         }
         t1 = time.time()
         pred_vals = model(model_input)
         time_diff = time.time() - t1
-        scaled_vals = pred_vals["result"].numpy().T.reshape(-1) * pred_vals[
-            "scale"
+        scaled_vals = pred_vals['result'].numpy().T.reshape(-1) * pred_vals[
+            'scale'
         ].numpy().reshape(-1)
         scaled_vals = scaler.inverse_transform([scaled_vals])
         return scaled_vals, time_diff
@@ -146,19 +146,19 @@ class Exp_ForecastPFN(Exp_Basic):
         return preds, trues, time_diff
 
     def test(self, setting, test=0):
-        test_data, test_loader = self._get_data(flag="test")
+        test_data, test_loader = self._get_data(flag='test')
         test_data.data_stamp = self._ForecastPFN_time_features(
-            list(test_data.data_stamp_original["date"])
+            list(test_data.data_stamp_original['date'])
         )
         if test:
-            print("loading model")
+            print('loading model')
             pretrained = tf.keras.models.load_model(
-                self.args.model_path, custom_objects={"smape": smape}
+                self.args.model_path, custom_objects={'smape': smape}
             )
 
         preds = []
         trues = []
-        folder_path = "./test_results/" + setting + "/"
+        folder_path = './test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -184,7 +184,7 @@ class Exp_ForecastPFN(Exp_Basic):
 
         self.test_timer.end_timer()
         self.test_timer.total_time = timer
-        print("total time:")
+        print('total time:')
         print(timer)
 
         return self._save_test_data(setting, preds, trues)

@@ -55,15 +55,15 @@ class SnapshotManager:
     def __init__(
         self, snapshot_dir: str, logging_frequency: int, snapshot_frequency: int
     ):
-        self.model_snapshot_file = os.path.join(snapshot_dir, "model")
-        self.optimizer_snapshot_file = os.path.join(snapshot_dir, "optimizer")
-        self.losses_file = os.path.join(snapshot_dir, "losses")
-        self.iteration_file = os.path.join(snapshot_dir, "iteration")
-        self.time_tracking_file = os.path.join(snapshot_dir, "time")
+        self.model_snapshot_file = os.path.join(snapshot_dir, 'model')
+        self.optimizer_snapshot_file = os.path.join(snapshot_dir, 'optimizer')
+        self.losses_file = os.path.join(snapshot_dir, 'losses')
+        self.iteration_file = os.path.join(snapshot_dir, 'iteration')
+        self.time_tracking_file = os.path.join(snapshot_dir, 'time')
         self.logging_frequency = max(logging_frequency, 1)
         self.snapshot_frequency = max(snapshot_frequency, 1)
         self.start_time = None
-        self.losses = {"training": {}, "validation": {}}
+        self.losses = {'training': {}, 'validation': {}}
         self.time_track = {}
 
     def restore(
@@ -74,20 +74,20 @@ class SnapshotManager:
         if optimizer is not None and os.path.isfile(self.optimizer_snapshot_file):
             optimizer.load_state_dict(t.load(self.optimizer_snapshot_file))
         iteration = (
-            t.load(self.iteration_file)["iteration"]
+            t.load(self.iteration_file)['iteration']
             if os.path.isfile(self.iteration_file)
             else 0
         )
         if os.path.isfile(self.losses_file):
             losses = t.load(self.losses_file)
             training_losses = {
-                k: v for k, v in losses["training"].items() if k <= iteration
+                k: v for k, v in losses['training'].items() if k <= iteration
             }
             validation_losses = {
-                k: v for k, v in losses["validation"].items() if k <= iteration
+                k: v for k, v in losses['validation'].items() if k <= iteration
             }
             # when restoring remove losses which were after the last snapshot
-            self.losses = {"training": training_losses, "validation": validation_losses}
+            self.losses = {'training': training_losses, 'validation': validation_losses}
             self.snapshot(self.losses_file, self.losses)
         if os.path.isfile(self.time_tracking_file):
             self.time_track = t.load(self.time_tracking_file)
@@ -95,7 +95,7 @@ class SnapshotManager:
 
     def load_training_losses(self) -> pd.DataFrame:
         if os.path.isfile(self.losses_file):
-            losses = t.load(self.losses_file)["training"]
+            losses = t.load(self.losses_file)['training']
             return pd.DataFrame(losses, index=[0])[sorted(losses.keys())].T
         else:
             return pd.DataFrame([np.nan])
@@ -112,14 +112,14 @@ class SnapshotManager:
         optimizer: Optional[t.optim.Optimizer],
     ) -> None:
         if iteration == 1 or iteration % self.logging_frequency == 0:
-            self.losses["training"][iteration] = training_loss
-            self.losses["validation"][iteration] = validation_loss
+            self.losses['training'][iteration] = training_loss
+            self.losses['validation'][iteration] = validation_loss
             self.snapshot(self.losses_file, self.losses)
         if iteration % self.snapshot_frequency == 0:
             self.snapshot(self.model_snapshot_file, model.state_dict())
             if optimizer is not None:
                 self.snapshot(self.optimizer_snapshot_file, optimizer.state_dict())
-            self.snapshot(self.iteration_file, {"iteration": iteration})
+            self.snapshot(self.iteration_file, {'iteration': iteration})
             if self.start_time is not None:
                 self.time_track[iteration] = time.time() - self.start_time
                 self.snapshot(self.time_tracking_file, self.time_track)
@@ -130,7 +130,7 @@ class SnapshotManager:
         dir_path = os.path.dirname(path)
         if not os.path.isdir(dir_path):
             Path(dir_path).mkdir(parents=True, exist_ok=True)
-        temp_file = tempfile.NamedTemporaryFile(dir=dir_path, delete=False, mode="wb")
+        temp_file = tempfile.NamedTemporaryFile(dir=dir_path, delete=False, mode='wb')
         t.save(data, temp_file)
         temp_file.flush()
         os.fsync(temp_file.fileno())

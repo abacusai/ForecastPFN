@@ -3,7 +3,7 @@ import sys
 
 from tqdm import tqdm
 
-sys.path.append("..")
+sys.path.append('..')
 
 import logging
 import os
@@ -33,7 +33,7 @@ def init(name: str):
     create_experiment(
         experiment_path=experiment_path(module_path, name),
         parameters=parameters[name],
-        command=lambda path, params: f"python {module_path}/main.py run --path={path}",
+        command=lambda path, params: f'python {module_path}/main.py run --path={path}',
     )
 
 
@@ -41,26 +41,26 @@ def run(path: str):
     experiment_parameters = load_experiment_parameters(path)
 
     model_horizons = {
-        "Y4": 4,
-        "Y6": 6,
-        "Q8": 8,
-        "M18": 18,
-        "M24": 24,
-        "W13": 13,
-        "D14": 14,
-        "H24": 24,
-        "H48": 48,
+        'Y4': 4,
+        'Y6': 6,
+        'Q8': 8,
+        'M18': 18,
+        'M24': 24,
+        'W13': 13,
+        'D14': 14,
+        'H24': 24,
+        'H48': 48,
     }
 
     tl_models = {}
     for model_name, horizon in model_horizons.items():
-        input_size = experiment_parameters["lookback_period"] * horizon
+        input_size = experiment_parameters['lookback_period'] * horizon
         model = Exp_ForecastPFN(None)
 
         tl_models[model_name] = {
-            "p_model": model,
-            "p_input_size": input_size,
-            "p_horizon": horizon,
+            'p_model': model,
+            'p_input_size': input_size,
+            'p_horizon': horizon,
         }
 
     #
@@ -77,8 +77,8 @@ def run(path: str):
     ):
         forecasts = []
 
-        in_bundle = in_bundle.filter(lambda ts: ts.meta["seasonal_pattern"] == sp)
-        out_bundle = out_bundle.filter(lambda ts: ts.meta["seasonal_pattern"] == sp)
+        in_bundle = in_bundle.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
+        out_bundle = out_bundle.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
 
         input_set = in_bundle.values()
         input_timestamps = in_bundle.time_stamps()
@@ -115,7 +115,7 @@ def run(path: str):
         )
 
         model = tf.keras.models.load_model(
-            str(pathlib.Path(path).parent) + "/ckpts/", custom_objects={"smape": smape}
+            str(pathlib.Path(path).parent) + '/ckpts/', custom_objects={'smape': smape}
         )
         for idx, (x, y, x_mark, y_mark) in tqdm(
             enumerate(zip(batch_x, batch_y, batch_x_mark, batch_y_mark))
@@ -124,10 +124,10 @@ def run(path: str):
             forecasts.extend(pred)
 
         forecasts_df = pd.DataFrame(
-            forecasts, columns=[f"V{idx + 1}" for idx in range(p_horizon)]
+            forecasts, columns=[f'V{idx + 1}' for idx in range(p_horizon)]
         )
         forecasts_df.index = in_bundle.ids()
-        forecasts_df.index.name = "id"
+        forecasts_df.index.name = 'id'
         return forecasts_df
 
     # M4
@@ -144,23 +144,23 @@ def run(path: str):
 
     # M3
     target_input, target_output = M3Dataset(M3Meta.dataset_path).standard_split()
-    yearly = forecast(target_input, target_output, "M3Year", **tl_models["Y6"])
-    quarterly = forecast(target_input, target_output, "M3Quart", **tl_models["Q8"])
-    monthly = forecast(target_input, target_output, "M3Month", **tl_models["M18"])
-    others = forecast(target_input, target_output, "M3Other", **tl_models["Q8"])
+    yearly = forecast(target_input, target_output, 'M3Year', **tl_models['Y6'])
+    quarterly = forecast(target_input, target_output, 'M3Quart', **tl_models['Q8'])
+    monthly = forecast(target_input, target_output, 'M3Month', **tl_models['M18'])
+    others = forecast(target_input, target_output, 'M3Other', **tl_models['Q8'])
     pd.concat([yearly, quarterly, monthly, others], sort=False).to_csv(
-        os.path.join(os.path.join(path, "M3.csv"))
+        os.path.join(os.path.join(path, 'M3.csv'))
     )
 
     # Tourism
     target_input, target_output = TourismDataset(
         TourismMeta.dataset_path
     ).standard_split()
-    yearly = forecast(target_input, target_output, "Yearly", **tl_models["Y4"])
-    quarterly = forecast(target_input, target_output, "Quarterly", **tl_models["Q8"])
-    monthly = forecast(target_input, target_output, "Monthly", **tl_models["M24"])
+    yearly = forecast(target_input, target_output, 'Yearly', **tl_models['Y4'])
+    quarterly = forecast(target_input, target_output, 'Quarterly', **tl_models['Q8'])
+    monthly = forecast(target_input, target_output, 'Monthly', **tl_models['M24'])
     pd.concat([yearly, quarterly, monthly], sort=False).to_csv(
-        os.path.join(os.path.join(path, "tourism.csv"))
+        os.path.join(os.path.join(path, 'tourism.csv'))
     )
 
 
@@ -168,10 +168,10 @@ def evaluate(name: str, summary_filter: str, validation_mode: bool = False):
     pass
 
 
-def summary(name: str, summary_filter: str = "*", validation_mode: bool = False):
+def summary(name: str, summary_filter: str = '*', validation_mode: bool = False):
     pass
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     logging.root.setLevel(logging.INFO)
     Fire()

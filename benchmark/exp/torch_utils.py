@@ -14,7 +14,7 @@ DEFAULT_OPTIMIZER = partial(Adam, lr=0.001)
 
 
 load_dir = (
-    "tensorboard/mf_replicate_testnoiseT_shuffle5Millilon.20230714-133237/models/51"
+    'tensorboard/mf_replicate_testnoiseT_shuffle5Millilon.20230714-133237/models/51'
 )
 
 
@@ -79,7 +79,7 @@ class AdditionalValidationSets:
         self.epoch = []
         self.metrics = metrics
         self.loss = loss
-        self.device = device or torch.device("cpu")
+        self.device = device or torch.device('cpu')
         self.logs = {}
 
     def on_train_begin(self):
@@ -101,7 +101,7 @@ class AdditionalValidationSets:
                 self.loss,
                 self.metrics,
                 tbCallback,
-                f"add_valid/{validation_set_name}/",
+                f'add_valid/{validation_set_name}/',
                 epoch,
                 self.device,
             )
@@ -144,9 +144,9 @@ def add_metrics_to_log(
         if writer is not None:
             writer.add_scalar(prefix + metric.__name__, q, epoch)
     loss_value = loss(y_pred, y_true).item()
-    log[prefix + "loss"] = loss_value
+    log[prefix + 'loss'] = loss_value
     if writer is not None:
-        writer.add_scalar(prefix + "loss", loss_value, epoch)
+        writer.add_scalar(prefix + 'loss', loss_value, epoch)
     return log
 
 
@@ -164,7 +164,7 @@ def fit(
     optimizer=DEFAULT_OPTIMIZER,
     metrics=None,
     writer=None,
-    device="cpu",
+    device='cpu',
     steps_per_epoch=None,
     logdir=None,
     additional_validation_sets=[],
@@ -198,10 +198,10 @@ def fit(
     if seed and seed >= 0:
         torch.manual_seed(seed)
 
-    logdir = logdir or "."
-    os.makedirs(logdir + "/models/", exist_ok=True)
-    logfile = open(logdir + "/logs", "a")
-    logfile.write("-" * 32 + "\n")
+    logdir = logdir or '.'
+    os.makedirs(logdir + '/models/', exist_ok=True)
+    logfile = open(logdir + '/logs', 'a')
+    logfile.write('-' * 32 + '\n')
 
     # Build DataLoaders
     valid_data = TFRecordDataLoader(valid_df, batch_size)
@@ -216,11 +216,11 @@ def fit(
     # Run training loop
     logs = []
     for t in tqdm(range(initial_epoch, epochs)):
-        logfile.write(f"Epoch: {t+1}\n")
+        logfile.write(f'Epoch: {t+1}\n')
         train_data = TFRecordDataLoader(train_df, batch_size, True, shuffle)
         model.train()
         if verbose and t % 10 == 0:
-            print("Epoch {0} / {1}".format(t + 1, epochs))
+            print('Epoch {0} / {1}'.format(t + 1, epochs))
         log = OrderedDict()
         epoch_loss = 0.0
         # Run batches
@@ -237,11 +237,11 @@ def fit(
             opt.step()
             # Update status
             epoch_loss += batch_loss.item()
-            log["loss"] = float(epoch_loss) / (batch_i + 1)
+            log['loss'] = float(epoch_loss) / (batch_i + 1)
             if steps_per_epoch is not None and batch_i >= steps_per_epoch:
                 break
         if writer is not None:
-            writer.add_scalar("train/epoch/loss", log["loss"], t)
+            writer.add_scalar('train/epoch/loss', log['loss'], t)
         # Run metrics
         # train_metric_log = add_metrics_to_log(model, train_data, loss, metrics, writer, prefix='train/metrics/', epoch=t, device=device, steps_per_epoch=steps_per_epoch)
         # log.update(train_metric_log)
@@ -252,7 +252,7 @@ def fit(
                 loss,
                 metrics,
                 writer,
-                prefix="valid/metrics/",
+                prefix='valid/metrics/',
                 epoch=t,
                 device=device,
             )
@@ -260,13 +260,13 @@ def fit(
         # Additional validation set
         if t % 10 == 0:
             add_log = additional_valid_data.on_epoch_end(model, t, writer)
-            logfile.write(str(add_log) + "\n")
+            logfile.write(str(add_log) + '\n')
             to_save = {
-                "model": model.state_dict(),
-                "optimizer": opt.state_dict(),
+                'model': model.state_dict(),
+                'optimizer': opt.state_dict(),
             }
-            torch.save(to_save, logdir + f"/models/{t+1}")
-        logfile.write(str(log) + "\n")
+            torch.save(to_save, logdir + f'/models/{t+1}')
+        logfile.write(str(log) + '\n')
         logfile.flush()
         logs.append(log)
 

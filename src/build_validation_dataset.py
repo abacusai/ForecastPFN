@@ -54,13 +54,13 @@ def build_input(ts, target_full, task=1):
     target = target[-HISTORY:]
 
     return {
-        "ts": tf.repeat(tf.expand_dims(date_tensor, axis=0), [HORIZON], axis=0),
+        'ts': tf.repeat(tf.expand_dims(date_tensor, axis=0), [HORIZON], axis=0),
         # repeat the before horizon values horizon number of times,
         # so that for each of the predictions for each target_ts, you
         # have an available set of features
-        "history": tf.repeat(tf.expand_dims(target, axis=0), [HORIZON], axis=0),
-        "target_ts": tf.expand_dims(target_dates, axis=1),
-        "task": tf.fill(
+        'history': tf.repeat(tf.expand_dims(target, axis=0), [HORIZON], axis=0),
+        'target_ts': tf.expand_dims(target_dates, axis=1),
+        'task': tf.fill(
             [
                 HORIZON,
             ],
@@ -88,18 +88,18 @@ def get_dates(num_days, freq):
     dates = []
 
     # TODO: find better method for assigning these dates
-    if freq == "daily":
+    if freq == 'daily':
         current_date = datetime(2020, 10, 10)
-    elif freq == "monthly":
+    elif freq == 'monthly':
         current_date = datetime(2010, 1, 31)
 
     for _ in range(num_days):
         dates.append(pd.to_datetime(current_date))
-        if freq == "daily":
+        if freq == 'daily':
             current_date += relativedelta(days=1)
-        elif freq == "weekly":
+        elif freq == 'weekly':
             current_date += relativedelta(weeks=1)
-        elif freq == "monthly":
+        elif freq == 'monthly':
             current_date += relativedelta(months=1)
 
     return dates
@@ -142,20 +142,20 @@ def build_dataset(dataset, freq):
             for task in range(1, NUM_TASKS + 1):
                 built_input, output = build_input(dates, X, task=task)
 
-                ts_list += [ts for ts in built_input["ts"]]
-                history_list += [history for history in built_input["history"]]
-                target_ts_list += [target_ts for target_ts in built_input["target_ts"]]
-                task_list += [task for task in built_input["task"]]
+                ts_list += [ts for ts in built_input['ts']]
+                history_list += [history for history in built_input['history']]
+                target_ts_list += [target_ts for target_ts in built_input['target_ts']]
+                task_list += [task for task in built_input['task']]
 
                 outputs += [y for y in output]
 
     dataset_frame = tf.data.Dataset.from_tensor_slices(
         (
             {
-                "ts": ts_list,
-                "history": history_list,
-                "target_ts": target_ts_list,
-                "task": task_list,
+                'ts': ts_list,
+                'history': history_list,
+                'target_ts': target_ts_list,
+                'task': task_list,
             },
             outputs,
         )
@@ -181,22 +181,22 @@ def get_validation_dataset():
     build a dataframe for getting the validation dataset
     """
     wikiweb_train = read_timeseries_file(
-        "/home/ubuntu/notebooks/forecasting/pretraining/wikiweb_train.csv"
+        '/home/ubuntu/notebooks/forecasting/pretraining/wikiweb_train.csv'
     )
     tourism_train = read_timeseries_file(
-        "/home/ubuntu/notebooks/forecasting/pretraining/tourism_train.csv"
+        '/home/ubuntu/notebooks/forecasting/pretraining/tourism_train.csv'
     )
     read_timeseries_file(
-        "/home/ubuntu/notebooks/forecasting/pretraining/exchange_rate_train.csv"
+        '/home/ubuntu/notebooks/forecasting/pretraining/exchange_rate_train.csv'
     )
-    read_timeseries_file("/home/ubuntu/notebooks/forecasting/pretraining/m3_train.csv")
+    read_timeseries_file('/home/ubuntu/notebooks/forecasting/pretraining/m3_train.csv')
 
     # add different datasets and their frequency here
     # TODO: addition of monthly dataset shoots up
     # validation loss to ~40k. Need to see how to fix that
     train_dataset_and_freq = [
-        (wikiweb_train, "daily"),
-        (tourism_train, "monthly"),
+        (wikiweb_train, 'daily'),
+        (tourism_train, 'monthly'),
         # (exchange_rate_train, "daily"),
         # (m3_train, "monthly")
     ]
@@ -210,5 +210,5 @@ def main():
     get_validation_dataset()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -81,32 +81,32 @@ def make_series_seasonal(series: SeriesConfig, dates: pd.DatetimeIndex):
 
     seasonal_components = defaultdict(lambda: 1)
     if series.scale.minute is not None:
-        seasonal_components["minute"] = 1 + series.scale.minute * get_freq_component(
+        seasonal_components['minute'] = 1 + series.scale.minute * get_freq_component(
             dates.minute, 10, 60
         )
-        seasonal *= seasonal_components["minute"]
+        seasonal *= seasonal_components['minute']
     if series.scale.h is not None:
-        seasonal_components["h"] = 1 + series.scale.h * get_freq_component(
+        seasonal_components['h'] = 1 + series.scale.h * get_freq_component(
             dates.hour, 10, 24
         )
-        seasonal *= seasonal_components["h"]
+        seasonal *= seasonal_components['h']
     if series.scale.a is not None:
-        seasonal_components["a"] = 1 + series.scale.a * get_freq_component(
+        seasonal_components['a'] = 1 + series.scale.a * get_freq_component(
             dates.month, 6, 12
         )
-        seasonal *= seasonal_components["a"]
+        seasonal *= seasonal_components['a']
     if series.scale.m is not None:
-        seasonal_components["m"] = 1 + series.scale.m * get_freq_component(
+        seasonal_components['m'] = 1 + series.scale.m * get_freq_component(
             dates.day, 10, 30.5
         )
-        seasonal *= seasonal_components["m"]
+        seasonal *= seasonal_components['m']
     if series.scale.w is not None:
-        seasonal_components["w"] = 1 + series.scale.w * get_freq_component(
+        seasonal_components['w'] = 1 + series.scale.w * get_freq_component(
             dates.dayofweek, 4, 7
         )
-        seasonal *= seasonal_components["w"]
+        seasonal *= seasonal_components['w']
 
-    seasonal_components["seasonal"] = seasonal
+    seasonal_components['seasonal'] = seasonal
     return seasonal_components
 
 
@@ -132,7 +132,7 @@ def make_series(
         values_trend = make_series_trend(series, dates)
         values_seasonal = make_series_seasonal(series, dates)
 
-        values = values_trend * values_seasonal["seasonal"]
+        values = values_trend * values_seasonal['seasonal']
 
         weibull_noise_term = weibull_noise(
             k=series.noise_config.k,
@@ -151,9 +151,9 @@ def make_series(
 
     dataframe_data = {
         **values_seasonal,
-        "values": values,
-        "noise": 1 + scaled_noise_term,
-        "dates": dates,
+        'values': values,
+        'noise': 1 + scaled_noise_term,
+        'dates': dates,
     }
 
     return dataframe_data

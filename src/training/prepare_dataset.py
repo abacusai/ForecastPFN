@@ -40,18 +40,18 @@ def compute_time_features(ts: np.ndarray):
 @tf.function
 def build_frames(r: Dict[str, tf.Tensor]):
     raw_date_info = tf.numpy_function(
-        compute_time_features, inp=[r["ts"]], Tout=tf.int64
+        compute_time_features, inp=[r['ts']], Tout=tf.int64
     )
     date_info = tf.signal.frame(
         tf.pad(raw_date_info, [[PADDING, 0], [0, 0]]), HISTORY_LEN, 1, axis=0
     )
 
-    history = tf.signal.frame(tf.pad(r["y"], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1)
-    noise = tf.signal.frame(tf.pad(r["noise"], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1)
+    history = tf.signal.frame(tf.pad(r['y'], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1)
+    noise = tf.signal.frame(tf.pad(r['noise'], [[PADDING, 0]]), HISTORY_LEN, 1, axis=-1)
 
     target_dates = tf.signal.frame(raw_date_info, TARGET_LEN, 1, axis=0)
-    target_values = tf.signal.frame(r["y"], TARGET_LEN, 1, axis=-1)
-    target_noise = tf.signal.frame(r["noise"], TARGET_LEN, 1, axis=-1)
+    target_values = tf.signal.frame(r['y'], TARGET_LEN, 1, axis=-1)
+    target_noise = tf.signal.frame(r['noise'], TARGET_LEN, 1, axis=-1)
 
     start_index = target_values.shape[0] - TRIM_LEN
     start_index - TARGET_LEN
@@ -289,7 +289,7 @@ def filter_unusable_points(X: Dict[str, tf.Tensor], y: tf.Tensor):
     """
     Filter points where the maximum in the history is less than 0.1
     """
-    return tf.logical_and(tf.reduce_max(X["history"]) > 0.1, tf.math.is_finite(y))[0]
+    return tf.logical_and(tf.reduce_max(X['history']) > 0.1, tf.math.is_finite(y))[0]
 
 
 def position_encoding(periods: int, freqs: int):

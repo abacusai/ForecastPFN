@@ -15,12 +15,12 @@ class Prophet:
 
 
 model_dict = {
-    "FEDformer": FEDformer,
-    "FEDformer-w": FEDformer,
-    "FEDformer-f": FEDformer,
-    "Autoformer": Autoformer,
-    "Transformer": Transformer,
-    "Informer": Informer,
-    "Arima": Arima,
-    "Prophet": Prophet,
+    'FEDformer': FEDformer,
+    'FEDformer-w': FEDformer,
+    'FEDformer-f': FEDformer,
+    'Autoformer': Autoformer,
+    'Transformer': Transformer,
+    'Informer': Informer,
+    'Arima': Arima,
+    'Prophet': Prophet,
 }

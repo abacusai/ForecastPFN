@@ -16,8 +16,8 @@ from tqdm import trange
 
 
 def evaluate(config):
-    pretrained = tf.keras.models.load_model(config["model_path"])
-    model_info = PL.get_model_info(config["model_number"])
+    pretrained = tf.keras.models.load_model(config['model_path'])
+    model_info = PL.get_model_info(config['model_number'])
 
     record_index = model_info.prepared_dataset_instance.get_record_index(3)
 
@@ -66,8 +66,8 @@ def evaluate(config):
 
             # get scaled mean based on the given history
             scaled_mean = (
-                pred_mean["result"].numpy().reshape(-1)
-                * pred_mean["scale"].numpy().reshape(-1)
+                pred_mean['result'].numpy().reshape(-1)
+                * pred_mean['scale'].numpy().reshape(-1)
             ) * local_scale
 
             item_id.append(current_point.test_info[0])
@@ -90,23 +90,23 @@ def evaluate(config):
 
     return eval_clipped_df[
         (eval_clipped_df.actual > 0)
-        & (eval_clipped_df.pred_start == "2021-06-30T00:00:00")
+        & (eval_clipped_df.pred_start == '2021-06-30T00:00:00')
     ].describe()
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", required=True, help="Path to config file")
+    parser.add_argument('-c', '--config', required=True, help='Path to config file')
     args = parser.parse_args()
 
     with open(args.config) as config_file:
         config = yaml.load(config_file, yaml.loader.SafeLoader)
 
-    environment.change_config_env("jenkinsdev")
+    environment.change_config_env('jenkinsdev')
 
     results_df = evaluate(config)
     print(results_df)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

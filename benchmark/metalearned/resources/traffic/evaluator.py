@@ -15,7 +15,7 @@ class TrafficEvaluator(Evaluator):
 
     def evaluate(self, forecasts: TimeseriesBundle) -> EvaluationResult:
         return {
-            "metric": round_half_up(
+            'metric': round_half_up(
                 self.metric_fn(
                     np.array(forecasts.values()), np.array(self.test_set.values())
                 ),

@@ -10,8 +10,8 @@ from data_provider.UnivariateTimeseriesSampler_WithStamps import (
 from resources.m3.dataset import M3Dataset, M3Meta
 from resources.tourism.dataset import TourismDataset, TourismMeta
 
-ACADEMIC_HOME = "/home/ubuntu/notebooks/ForecastPFN/academic_comparison/"
-METALEARNED_HOME = ACADEMIC_HOME + "metalearned/"
+ACADEMIC_HOME = '/home/ubuntu/notebooks/ForecastPFN/academic_comparison/'
+METALEARNED_HOME = ACADEMIC_HOME + 'metalearned/'
 sys.path.append(ACADEMIC_HOME)
 sys.path.append(METALEARNED_HOME)
 
@@ -37,8 +37,8 @@ def prepare_metalearned_test(
         METALEARNED_HOME + metalearnedMeta.dataset_path
     ).standard_split()
     in_bundle, out_bundle, sp = target_input, target_output, sp
-    in_bundle = in_bundle.filter(lambda ts: ts.meta["seasonal_pattern"] == sp)
-    out_bundle = out_bundle.filter(lambda ts: ts.meta["seasonal_pattern"] == sp)
+    in_bundle = in_bundle.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
+    out_bundle = out_bundle.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
 
     input_set = in_bundle.values()
     input_timestamps = in_bundle.time_stamps()
@@ -84,32 +84,32 @@ def prepare_metalearned_test(
                 task.append(1)
                 y_out.append([yi])
 
-    ts = tf.convert_to_tensor(np.array(ts), dtype=np.int64, name="ts")
-    history = tf.convert_to_tensor(np.array(history), dtype=np.float32, name="history")
+    ts = tf.convert_to_tensor(np.array(ts), dtype=np.int64, name='ts')
+    history = tf.convert_to_tensor(np.array(history), dtype=np.float32, name='history')
     target_ts = tf.convert_to_tensor(
-        np.array(target_ts), dtype=np.int64, name="target_ts"
+        np.array(target_ts), dtype=np.int64, name='target_ts'
     )
-    task = tf.convert_to_tensor(np.array(task), dtype=np.int64, name="task")
+    task = tf.convert_to_tensor(np.array(task), dtype=np.int64, name='task')
     y = tf.convert_to_tensor(np.array(y_out), dtype=np.float32)
 
-    ds = {"ts": ts, "history": history, "target_ts": target_ts, "task": task}, y
+    ds = {'ts': ts, 'history': history, 'target_ts': target_ts, 'task': task}, y
 
     return tf.data.Dataset.from_tensor_slices(ds)
 
 
 # Tourism
 tourism_yearly_test_df = prepare_metalearned_test(
-    TourismDataset, TourismMeta, "Yearly", 8, 4
+    TourismDataset, TourismMeta, 'Yearly', 8, 4
 )
 tourism_quarterly_test_df = prepare_metalearned_test(
-    TourismDataset, TourismMeta, "Quarterly", 16, 8
+    TourismDataset, TourismMeta, 'Quarterly', 16, 8
 )
 tourism_monthly_test_df = prepare_metalearned_test(
-    TourismDataset, TourismMeta, "Monthly", 48, 24
+    TourismDataset, TourismMeta, 'Monthly', 48, 24
 )
 
 # M3
-m3_yearly_test_df = prepare_metalearned_test(M3Dataset, M3Meta, "M3Year", 12, 6)
-m3_quarterly_test_df = prepare_metalearned_test(M3Dataset, M3Meta, "M3Quart", 16, 8)
-m3_monthly_test_df = prepare_metalearned_test(M3Dataset, M3Meta, "M3Month", 36, 18)
-m3_others_test_df = prepare_metalearned_test(M3Dataset, M3Meta, "M3Other", 16, 8)
+m3_yearly_test_df = prepare_metalearned_test(M3Dataset, M3Meta, 'M3Year', 12, 6)
+m3_quarterly_test_df = prepare_metalearned_test(M3Dataset, M3Meta, 'M3Quart', 16, 8)
+m3_monthly_test_df = prepare_metalearned_test(M3Dataset, M3Meta, 'M3Month', 36, 18)
+m3_others_test_df = prepare_metalearned_test(M3Dataset, M3Meta, 'M3Other', 16, 8)

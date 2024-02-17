@@ -20,10 +20,10 @@ def save_tf_dataset(prefix: str, version: str, options: dict, num_series: int = 
     Generate dataset and save as tf records
     """
     for freq, freq_index in Config.freq_and_index:
-        print("Frequency: " + freq)
+        print('Frequency: ' + freq)
         save_tf_records(
             prefix,
-            f"{version}/{freq}.tfrecords",
+            f'{version}/{freq}.tfrecords',
             tf_generate_n(
                 N=num_series,
                 freq_index=freq_index,
@@ -38,13 +38,13 @@ def generate_product_input_dataset(prefix, version):
     Load dataset from tf records and save as avro files
     """
     for freq in Config.frequency_names:
-        print("Frequency: " + freq)
+        print('Frequency: ' + freq)
         generate_product_input(
             prefix,
-            f"{version}/{freq}.avro",
+            f'{version}/{freq}.avro',
             convert_tf_to_rows(
                 load_tf_dataset(
-                    prefix, f"{version}/{freq}.tfrecords"
+                    prefix, f'{version}/{freq}.tfrecords'
                 ).as_numpy_iterator()
             ),
         )
@@ -52,21 +52,21 @@ def generate_product_input_dataset(prefix, version):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", required=True, help="Path to config file")
+    parser.add_argument('-c', '--config', required=True, help='Path to config file')
     args = parser.parse_args()
 
     with open(args.config) as config_file:
         config = yaml.load(config_file, yaml.loader.SafeLoader)
 
-    Config.set_freq_variables(config["sub_day"])
-    if "transition" in config:
-        Config.set_transition(config["transition"])
+    Config.set_freq_variables(config['sub_day'])
+    if 'transition' in config:
+        Config.set_transition(config['transition'])
 
     save_tf_dataset(
-        config["prefix"], config["version"], config["options"], config["num_series"]
+        config['prefix'], config['version'], config['options'], config['num_series']
     )
-    generate_product_input_dataset(config["prefix"], config["version"])
+    generate_product_input_dataset(config['prefix'], config['version'])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

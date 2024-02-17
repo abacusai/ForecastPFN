@@ -81,7 +81,7 @@ class Unknown(TimeUnit):
         return datetime(1, 1, 1)
 
 
-TimeseriesSplit = Tuple["Timeseries", "Timeseries"]
+TimeseriesSplit = Tuple['Timeseries', 'Timeseries']
 
 
 @dataclass
@@ -97,7 +97,7 @@ class Timeseries:
     values: np.ndarray
     meta: Dict[str, Any]
 
-    def copy(self, start_date: datetime, values: np.ndarray) -> "Timeseries":
+    def copy(self, start_date: datetime, values: np.ndarray) -> 'Timeseries':
         return Timeseries(
             id=self.id,
             start_date=start_date,
@@ -108,7 +108,7 @@ class Timeseries:
             meta=self.meta,
         )
 
-    def future_values(self, values: np.ndarray) -> "Timeseries":
+    def future_values(self, values: np.ndarray) -> 'Timeseries':
         return self.copy(
             start_date=self.time_unit.add(self.start_date, len(self.values)),
             values=values,
@@ -158,15 +158,15 @@ class TimeseriesBundle:
     def ids(self) -> List[str]:
         return list(map(lambda ts: ts.id, self.timeseries))
 
-    def filter(self, f: Callable[[Timeseries], bool]) -> "TimeseriesBundle":
+    def filter(self, f: Callable[[Timeseries], bool]) -> 'TimeseriesBundle':
         return TimeseriesBundle(list(filter(f, self.timeseries)))
 
-    def map(self, f: Callable[[Timeseries], Timeseries]) -> "TimeseriesBundle":
+    def map(self, f: Callable[[Timeseries], Timeseries]) -> 'TimeseriesBundle':
         return TimeseriesBundle(list(map(f, self.timeseries)))
 
     def split(
         self, f: Callable[[Timeseries], TimeseriesSplit]
-    ) -> Tuple["TimeseriesBundle", "TimeseriesBundle"]:
+    ) -> Tuple['TimeseriesBundle', 'TimeseriesBundle']:
         bucket_1 = []
         bucket_2 = []
         for timeseries in self.timeseries:
@@ -176,15 +176,15 @@ class TimeseriesBundle:
         return TimeseriesBundle(bucket_1), TimeseriesBundle(bucket_2)
 
     def intersection_by_id(
-        self, bundle: "TimeseriesBundle"
-    ) -> Tuple["TimeseriesBundle", "TimeseriesBundle"]:
+        self, bundle: 'TimeseriesBundle'
+    ) -> Tuple['TimeseriesBundle', 'TimeseriesBundle']:
         bundle_ids = bundle.ids()
         ids = [ts_id for ts_id in self.ids() if ts_id in bundle_ids]
         return self.filter(lambda ts: ts.id in ids), bundle.filter(
             lambda ts: ts.id in ids
         )
 
-    def future_values(self, values: np.array) -> "TimeseriesBundle":
+    def future_values(self, values: np.array) -> 'TimeseriesBundle':
         assert len(values) == len(self.timeseries)
         return TimeseriesBundle(
             [ts.future_values(values[i]) for i, ts in enumerate(self.timeseries)]
@@ -194,16 +194,16 @@ class TimeseriesBundle:
 class TimeseriesLoader(ABC):
     def __init__(self, path: str):
         self.path = path
-        self.cache_path = os.path.join(path, "cache.dill")
+        self.cache_path = os.path.join(path, 'cache.dill')
 
     def build_cache(self) -> None:
         if not os.path.exists(self.cache_path):
             Path(self.cache_path).parent.mkdir(parents=True, exist_ok=True)
-            with open(self.cache_path, "wb") as file:
+            with open(self.cache_path, 'wb') as file:
                 dill.dump(self.download(), file)
 
     def load_cache(self) -> TimeseriesBundle:
-        with open(self.cache_path, "rb") as file:
+        with open(self.cache_path, 'rb') as file:
             return dill.load(file)
 
     @abstractmethod

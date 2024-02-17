@@ -90,10 +90,10 @@ class NBeatsTrendBlock(t.nn.Module):
     def forward(self, x: t.Tensor):
         thetas = self.basis(self.fc(x))
         backcast = t.einsum(
-            "bp,pt->bt", thetas[:, self.polynomial_size :], x.new(self.backcast_time)
+            'bp,pt->bt', thetas[:, self.polynomial_size :], x.new(self.backcast_time)
         )
         forecast = t.einsum(
-            "bp,pt->bt", thetas[:, : self.polynomial_size], x.new(self.forecast_time)
+            'bp,pt->bt', thetas[:, : self.polynomial_size], x.new(self.forecast_time)
         )
         self.backcast_dump = backcast
         self.forecast_dump = forecast
@@ -152,24 +152,24 @@ class NBeatsSeasonalityBlock(t.nn.Module):
         harmonics_weights = self.basis(self.fc(x))
 
         backcast_harmonics_cos = t.einsum(
-            "bp,pt->bt",
+            'bp,pt->bt',
             harmonics_weights[:, 2 * self.basis_parameters : 3 * self.basis_parameters],
             x.new(self.backcast_cos_template),
         )
         backcast_harmonics_sin = t.einsum(
-            "bp,pt->bt",
+            'bp,pt->bt',
             harmonics_weights[:, 3 * self.basis_parameters :],
             x.new(self.backcast_sin_template),
         )
         backcast = backcast_harmonics_sin + backcast_harmonics_cos
 
         forecast_harmonics_cos = t.einsum(
-            "bp,pt->bt",
+            'bp,pt->bt',
             harmonics_weights[:, : self.basis_parameters],
             x.new(self.forecast_cos_template),
         )
         forecast_harmonics_sin = t.einsum(
-            "bp,pt->bt",
+            'bp,pt->bt',
             harmonics_weights[:, self.basis_parameters : 2 * self.basis_parameters],
             x.new(self.forecast_sin_template),
         )
@@ -182,7 +182,7 @@ class NBeatsSeasonalityBlock(t.nn.Module):
 
 
 class NBeats(t.nn.Module):
-    def __init__(self, stacks: t.nn.ModuleList, scaling=None, mode: str = "dress"):
+    def __init__(self, stacks: t.nn.ModuleList, scaling=None, mode: str = 'dress'):
         super().__init__()
         self.stacks = stacks
         self.mode = mode
@@ -191,9 +191,9 @@ class NBeats(t.nn.Module):
     def forward(self, x: t.Tensor, input_mask: t.Tensor) -> t.Tensor:
         scale_const = None
         if self.scaling is not None:
-            if self.scaling == "max":
+            if self.scaling == 'max':
                 scale_const = t.max(x, dim=1).values[:, None]
-            elif self.scaling == "last":
+            elif self.scaling == 'last':
                 scale_const = x[:, -1:]
             x = div_no_nan(x, scale_const)
 
@@ -203,30 +203,30 @@ class NBeats(t.nn.Module):
 
         original_input = residuals
         for i, stack in enumerate(self.stacks):
-            if self.mode == "dress":
+            if self.mode == 'dress':
                 backcast, stack_forecast = stack(residuals)
                 residuals = (residuals - backcast) * input_mask
                 forecast = forecast + stack_forecast
-            elif self.mode == "parallel":
+            elif self.mode == 'parallel':
                 backcast, stack_forecast = stack(residuals)
                 forecast = forecast + stack_forecast
-            elif self.mode == "last_forward":
+            elif self.mode == 'last_forward':
                 backcast, stack_forecast = stack(residuals)
                 residuals = (residuals - backcast) * input_mask
                 forecast = forecast + stack_forecast
-            elif self.mode == "no_residual":
+            elif self.mode == 'no_residual':
                 backcast, stack_forecast = stack(residuals)
                 residuals = backcast
                 forecast = forecast + stack_forecast
-            elif self.mode == "no_residual_last_forward":
+            elif self.mode == 'no_residual_last_forward':
                 backcast, stack_forecast = stack(residuals)
                 residuals = backcast
                 forecast = forecast + stack_forecast
-            elif self.mode == "residual_input":
+            elif self.mode == 'residual_input':
                 backcast, stack_forecast = stack(residuals)
                 residuals = (original_input - backcast) * input_mask
                 forecast = forecast + stack_forecast
-            elif self.mode == "residual_input_last_forward":
+            elif self.mode == 'residual_input_last_forward':
                 backcast, stack_forecast = stack(residuals)
                 residuals = (original_input - backcast) * input_mask
                 forecast = forecast + stack_forecast
@@ -245,7 +245,7 @@ def nbeats_generic(
     fc_layers: int = 4,
     fc_layers_size: int = 512,
     scaling: str = None,
-    mode: str = "dress",
+    mode: str = 'dress',
 ):
     modules = [
         [
@@ -277,7 +277,7 @@ def nbeats_interpretable(
     seasonality_fc_layers_size: int = 2048,
     num_of_harmonics: int = 1,
     scaling: str = None,
-    mode: str = "dress",
+    mode: str = 'dress',
 ):
     trend_block = NBeatsTrendBlock(
         input_size=input_size,

@@ -22,9 +22,9 @@ class M3Evaluator(Evaluator):
 
         for sp in M3Meta.seasonal_patterns:
             target_sp = self.test_set.filter(
-                lambda ts: ts.meta["seasonal_pattern"] == sp
+                lambda ts: ts.meta['seasonal_pattern'] == sp
             )
-            forecast_sp = forecasts.filter(lambda ts: ts.meta["seasonal_pattern"] == sp)
+            forecast_sp = forecasts.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
 
             target, forecast = target_sp.intersection_by_id(forecast_sp)
 
@@ -39,5 +39,5 @@ class M3Evaluator(Evaluator):
             results[sp] = round(float(np.mean(metric)), 2)
             offset += len(target_values)
 
-        results["Average"] = round(cumulative_metrics / cumulative_points, 2)
+        results['Average'] = round(cumulative_metrics / cumulative_points, 2)
         return results

@@ -22,10 +22,10 @@ class TourismEvaluator(Evaluator):
 
         for sp in TourismMeta.seasonal_patterns:
             target_for_sp = self.test_set.filter(
-                lambda ts: ts.meta["seasonal_pattern"] == sp
+                lambda ts: ts.meta['seasonal_pattern'] == sp
             )
             forecast_for_sp = forecasts.filter(
-                lambda ts: ts.meta["seasonal_pattern"] == sp
+                lambda ts: ts.meta['seasonal_pattern'] == sp
             )
 
             target = np.array(target_for_sp.values())
@@ -42,7 +42,7 @@ class TourismEvaluator(Evaluator):
             results[sp] = round(float(np.mean(score)), self.precision)
             offset += len(target)
 
-        results["Average"] = round(
+        results['Average'] = round(
             cumulative_metrics / cumulative_points, self.precision
         )
         return results

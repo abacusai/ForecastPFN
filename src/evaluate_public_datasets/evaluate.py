@@ -43,13 +43,13 @@ def build_input(ts, target, task=1):
     date_tensor = date_tensor[-HISTORY:]
     target = target[-HISTORY:]
     return {
-        "ts": tf.repeat(tf.expand_dims(date_tensor, axis=0), [horizon], axis=0),
+        'ts': tf.repeat(tf.expand_dims(date_tensor, axis=0), [horizon], axis=0),
         # repeat the before horizon values horizon number of times,
         # so that for each of the predictions for each target_ts, you
         # have an available set of features
-        "history": tf.repeat(tf.expand_dims(target, axis=0), [horizon], axis=0),
-        "target_ts": tf.expand_dims(target_dates, axis=1),
-        "task": tf.fill(
+        'history': tf.repeat(tf.expand_dims(target, axis=0), [horizon], axis=0),
+        'target_ts': tf.expand_dims(target_dates, axis=1),
+        'task': tf.fill(
             [
                 horizon,
             ],
@@ -59,7 +59,7 @@ def build_input(ts, target, task=1):
 
 
 def evaluate_model(config, train_data, test_data, freq, name):
-    pretrained = tf.keras.models.load_model(config["model_path"])
+    pretrained = tf.keras.models.load_model(config['model_path'])
 
     BATCH_SIZE = 100
     _item_id, _pred_start, actual, pred = [], [], [], []
@@ -70,7 +70,7 @@ def evaluate_model(config, train_data, test_data, freq, name):
         for idx, current_point in enumerate(test_points):
             # timestamps of history
             history_ts = pd.date_range(
-                start="2010-01-01",
+                start='2010-01-01',
                 periods=len(train_data[i + idx] + test_data[i + idx]),
                 freq=freq,
             )
@@ -99,8 +99,8 @@ def evaluate_model(config, train_data, test_data, freq, name):
 
             # get scaled mean based on the given history
             scaled_vals = (
-                pred_vals["result"].numpy().reshape(-1)
-                * pred_vals["scale"].numpy().reshape(-1)
+                pred_vals['result'].numpy().reshape(-1)
+                * pred_vals['scale'].numpy().reshape(-1)
             ) * local_scale
 
             if np.mean(np.array(test_data[i + idx])):
@@ -141,24 +141,24 @@ def evaluate_model(config, train_data, test_data, freq, name):
 
     # print(wapes)
     # print(np.nanmean(wapes))
-    print("MAE:", mean_absolute_error(actual, pred))
-    print("MSE:", mean_squared_error(actual, pred))
+    print('MAE:', mean_absolute_error(actual, pred))
+    print('MSE:', mean_squared_error(actual, pred))
     print(np.mean(stds))
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", required=True, help="Path to config file")
+    parser.add_argument('-c', '--config', required=True, help='Path to config file')
     args = parser.parse_args()
 
     with open(args.config) as config_file:
         config = yaml.load(config_file, yaml.loader.SafeLoader)
 
-    train_data = read_timeseries_file(config["train_file"])
-    test_data = read_timeseries_file(config["test_file"])
+    train_data = read_timeseries_file(config['train_file'])
+    test_data = read_timeseries_file(config['test_file'])
 
-    evaluate_model(config, train_data, test_data, config["freq"], config["name"])
+    evaluate_model(config, train_data, test_data, config['freq'], config['name'])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

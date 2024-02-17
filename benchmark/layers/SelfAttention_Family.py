@@ -27,7 +27,7 @@ class FullAttention(nn.Module):
         _, S, _, D = values.shape
         scale = self.scale or 1.0 / sqrt(E)
 
-        scores = torch.einsum("blhe,bshe->bhls", queries, keys)
+        scores = torch.einsum('blhe,bshe->bhls', queries, keys)
 
         if self.mask_flag:
             if attn_mask is None:
@@ -36,7 +36,7 @@ class FullAttention(nn.Module):
             scores.masked_fill_(attn_mask.mask, -np.inf)
 
         A = self.dropout(torch.softmax(scale * scores, dim=-1))
-        V = torch.einsum("bhls,bshd->blhd", A, values)
+        V = torch.einsum('bhls,bshd->blhd', A, values)
 
         if self.output_attention:
             return (V.contiguous(), A)
@@ -125,8 +125,8 @@ class ProbAttention(nn.Module):
         keys = keys.transpose(2, 1)
         values = values.transpose(2, 1)
 
-        U_part = self.factor * np.ceil(np.log(L_K)).astype("int").item()  # c*ln(L_k)
-        u = self.factor * np.ceil(np.log(L_Q)).astype("int").item()  # c*ln(L_q)
+        U_part = self.factor * np.ceil(np.log(L_K)).astype('int').item()  # c*ln(L_k)
+        u = self.factor * np.ceil(np.log(L_Q)).astype('int').item()  # c*ln(L_q)
 
         U_part = U_part if U_part < L_K else L_K
         u = u if u < L_Q else L_Q

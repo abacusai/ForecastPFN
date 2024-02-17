@@ -43,7 +43,7 @@ def generate_tf_train_examples(name, train_data_list, freq):
             if len(train_data) < CONTEXT_LENGTH:
                 train_data = [0] * (CONTEXT_LENGTH - len(train_data)) + train_data
 
-            start = f"{np.random.randint(2010, 2013)}-{np.random.randint(1, 13)}-{np.random.randint(1, 11)}"
+            start = f'{np.random.randint(2010, 2013)}-{np.random.randint(1, 13)}-{np.random.randint(1, 11)}'
             dates = pd.date_range(start=start, periods=CONTEXT_LENGTH, freq=freq)
 
             noise = [1] * CONTEXT_LENGTH
@@ -58,16 +58,16 @@ def generate_tf_train_examples(name, train_data_list, freq):
             yield tf.train.Example(
                 features=tf.train.Features(
                     feature={
-                        "id": tf.train.Feature(
+                        'id': tf.train.Feature(
                             bytes_list=tf.train.BytesList(value=[name.encode()])
                         ),
-                        "ts": tf.train.Feature(
+                        'ts': tf.train.Feature(
                             int64_list=tf.train.Int64List(value=dates.astype(np.int64))
                         ),
-                        "y": tf.train.Feature(
+                        'y': tf.train.Feature(
                             float_list=tf.train.FloatList(value=train_data)
                         ),
-                        "noise": tf.train.Feature(
+                        'noise': tf.train.Feature(
                             float_list=tf.train.FloatList(value=noise)
                         ),
                     }
@@ -81,7 +81,7 @@ def save_tf_records(prefix: str, dest: str, it):
     """
     with NamedTemporaryFile() as tfile:
         with tf.io.TFRecordWriter(
-            tfile.name, options=tf.io.TFRecordOptions(compression_type="GZIP")
+            tfile.name, options=tf.io.TFRecordOptions(compression_type='GZIP')
         ) as writer:
             for record in tqdm(it):
                 writer.write(record.SerializeToString())
@@ -95,26 +95,26 @@ def save_tf_dataset(prefix: str, dataset_name: str, data: list, freq: str):
     """
     save_tf_records(
         prefix,
-        f"{dataset_name}.tfrecords",
+        f'{dataset_name}.tfrecords',
         generate_tf_train_examples(dataset_name, data, freq),
     )
 
-    print(f"Written to file {dataset_name}.tfrecords")
+    print(f'Written to file {dataset_name}.tfrecords')
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", required=True, help="Path to config file")
+    parser.add_argument('-c', '--config', required=True, help='Path to config file')
     args = parser.parse_args()
 
     with open(args.config) as config_file:
         config = yaml.load(config_file, yaml.loader.SafeLoader)
 
-    train_data = read_timeseries_file(config["train_path"])
+    train_data = read_timeseries_file(config['train_path'])
     save_tf_dataset(
-        config["prefix"], config["dataset_name"], train_data, config["freq"]
+        config['prefix'], config['dataset_name'], train_data, config['freq']
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

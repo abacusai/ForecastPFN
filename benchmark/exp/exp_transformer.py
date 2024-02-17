@@ -11,7 +11,7 @@ from exp.exp_basic import Exp_Basic
 from transformer_models.models import Autoformer, FEDformer, Informer, Transformer
 from utils.tools import EarlyStopping, TimeBudget, adjust_learning_rate
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings('ignore')
 
 
 class Exp_Transformer(Exp_Basic):
@@ -23,12 +23,12 @@ class Exp_Transformer(Exp_Basic):
 
     def _build_model(self):
         model_dict = {
-            "FEDformer": FEDformer,
-            "FEDformer-w": FEDformer,
-            "FEDformer-f": FEDformer,
-            "Autoformer": Autoformer,
-            "Transformer": Transformer,
-            "Informer": Informer,
+            'FEDformer': FEDformer,
+            'FEDformer-w': FEDformer,
+            'FEDformer-f': FEDformer,
+            'Autoformer': Autoformer,
+            'Transformer': Transformer,
+            'Informer': Informer,
         }
         model = model_dict[self.args.model].Model(self.args).float()
 
@@ -85,7 +85,7 @@ class Exp_Transformer(Exp_Basic):
                         outputs = self.model(
                             batch_x, batch_x_mark, dec_inp, batch_y_mark
                         )
-                f_dim = -1 if self.args.features == "MS" else 0
+                f_dim = -1 if self.args.features == 'MS' else 0
                 batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(self.device)
 
                 pred = outputs.detach().cpu()
@@ -101,9 +101,9 @@ class Exp_Transformer(Exp_Basic):
 
     def train(self, setting):
         print(setting)
-        train_data, train_loader = self._get_data(flag="train")
-        vali_data, vali_loader = self._get_data(flag="val")
-        test_data, test_loader = self._get_data(flag="test")
+        train_data, train_loader = self._get_data(flag='train')
+        vali_data, vali_loader = self._get_data(flag='val')
+        test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -161,7 +161,7 @@ class Exp_Transformer(Exp_Basic):
                                 batch_x, batch_x_mark, dec_inp, batch_y_mark
                             )
 
-                        f_dim = -1 if self.args.features == "MS" else 0
+                        f_dim = -1 if self.args.features == 'MS' else 0
                         batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(
                             self.device
                         )
@@ -177,7 +177,7 @@ class Exp_Transformer(Exp_Basic):
                             batch_x, batch_x_mark, dec_inp, batch_y_mark
                         )
 
-                    f_dim = -1 if self.args.features == "MS" else 0
+                    f_dim = -1 if self.args.features == 'MS' else 0
                     batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(self.device)
 
                     loss = criterion(outputs, batch_y)
@@ -193,60 +193,60 @@ class Exp_Transformer(Exp_Basic):
 
                 self.train_timer.step()
                 if self.train_timer.budget_reached:
-                    early_stopping.save_checkpoint("", self.model, path)
-                    print(f"Budget reached: {self.train_timer.total_time}")
+                    early_stopping.save_checkpoint('', self.model, path)
+                    print(f'Budget reached: {self.train_timer.total_time}')
                     self.train_timer.end_timer()
 
-                    best_model_path = path + "/" + "checkpoint.pth"
+                    best_model_path = path + '/' + 'checkpoint.pth'
                     self.model.load_state_dict(torch.load(best_model_path))
 
                     return self.model
 
-            print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            print('Epoch: {} cost time: {}'.format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
             print(
-                "Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
+                'Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}'.format(
                     epoch + 1, train_steps, train_loss, vali_loss, test_loss
                 )
             )
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
-                print("Early stopping")
+                print('Early stopping')
                 break
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
         self.train_timer.end_timer()
 
-        best_model_path = path + "/" + "checkpoint.pth"
+        best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
 
         return self.model
 
     def test(self, setting, test=0):
-        test_data, test_loader = self._get_data(flag="test")
+        test_data, test_loader = self._get_data(flag='test')
         if test:
-            print("loading model")
+            print('loading model')
             if self.args.use_gpu:
                 self.model.load_state_dict(
                     torch.load(
-                        os.path.join("./checkpoints/" + setting, "checkpoint.pth")
+                        os.path.join('./checkpoints/' + setting, 'checkpoint.pth')
                     )
                 )
             else:
                 self.model.load_state_dict(
                     torch.load(
-                        os.path.join("./checkpoints/" + setting, "checkpoint.pth"),
-                        map_location=torch.device("cpu"),
+                        os.path.join('./checkpoints/' + setting, 'checkpoint.pth'),
+                        map_location=torch.device('cpu'),
                     )
                 )
 
         preds = []
         trues = []
-        folder_path = "./test_results/" + setting + "/"
+        folder_path = './test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -291,7 +291,7 @@ class Exp_Transformer(Exp_Basic):
                             batch_x, batch_x_mark, dec_inp, batch_y_mark
                         )
 
-                f_dim = -1 if self.args.features == "MS" else 0
+                f_dim = -1 if self.args.features == 'MS' else 0
 
                 batch_y = batch_y[:, -self.args.pred_len :, f_dim:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
@@ -316,11 +316,11 @@ class Exp_Transformer(Exp_Basic):
         return self._save_test_data(setting, preds, trues)
 
     def predict(self, setting, load=False):
-        pred_data, pred_loader = self._get_data(flag="pred")
+        pred_data, pred_loader = self._get_data(flag='pred')
 
         if load:
             path = os.path.join(self.args.checkpoints, setting)
-            best_model_path = path + "/" + "checkpoint.pth"
+            best_model_path = path + '/' + 'checkpoint.pth'
             self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []
@@ -369,10 +369,10 @@ class Exp_Transformer(Exp_Basic):
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
 
         # result save
-        folder_path = "./results/" + setting + "/"
+        folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        np.save(folder_path + "real_prediction.npy", preds)
+        np.save(folder_path + 'real_prediction.npy', preds)
 
         return

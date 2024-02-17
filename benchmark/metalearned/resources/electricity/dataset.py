@@ -21,12 +21,12 @@ https://github.com/rofuyu/exp-trmf-nips16/blob/master/python/exp-scripts/dataset
 
 @dataclass(frozen=True)
 class ElectricityMeta:
-    dataset_path = os.path.join(RESOURCES_DIR, "electricity")
+    dataset_path = os.path.join(RESOURCES_DIR, 'electricity')
     horizon = 24
     windows = 7
     clients = 370
     time_steps = 26304
-    seasonal_pattern = "Hourly"
+    seasonal_pattern = 'Hourly'
     period = 24
     # first point of test set as per https://arxiv.org/pdf/1704.04110.pdf
     deepar_split = datetime(2014, 9, 1, 0)
@@ -36,22 +36,22 @@ class ElectricityMeta:
 
 class ElectricityDataset(TimeseriesLoader):
     def download(self) -> TimeseriesBundle:
-        archive_file = os.path.join(self.path, "dataset.zip")
-        raw_file = os.path.join(self.path, "LD2011_2014.txt")
+        archive_file = os.path.join(self.path, 'dataset.zip')
+        raw_file = os.path.join(self.path, 'LD2011_2014.txt')
         download_url(
-            "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip",
+            'https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip',
             archive_file,
         )
         patoolib.extract_archive(archive_file, outdir=self.path)
 
-        with open(raw_file, "r") as f:
+        with open(raw_file, 'r') as f:
             raw = f.readlines()
 
         parsed_values = np.array(
             list(
                 map(
                     lambda raw_line: np.array(
-                        raw_line.replace(",", ".").strip().split(";")[1:]
+                        raw_line.replace(',', '.').strip().split(';')[1:]
                     ).astype(np.float),
                     tqdm(raw[1:]),
                 )
@@ -96,5 +96,5 @@ class ElectricityDataset(TimeseriesLoader):
         return bundle.split(lambda ts: ts.split(-24 * 7))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     ElectricityDataset(ElectricityMeta.dataset_path).build_cache()

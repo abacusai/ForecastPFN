@@ -10,7 +10,7 @@ class ConvLayer(nn.Module):
             out_channels=c_in,
             kernel_size=3,
             padding=2,
-            padding_mode="circular",
+            padding_mode='circular',
         )
         self.norm = nn.BatchNorm1d(c_in)
         self.activation = nn.ELU()
@@ -26,7 +26,7 @@ class ConvLayer(nn.Module):
 
 
 class EncoderLayer(nn.Module):
-    def __init__(self, attention, d_model, d_ff=None, dropout=0.1, activation="relu"):
+    def __init__(self, attention, d_model, d_ff=None, dropout=0.1, activation='relu'):
         super(EncoderLayer, self).__init__()
         d_ff = d_ff or 4 * d_model
         self.attention = attention
@@ -35,7 +35,7 @@ class EncoderLayer(nn.Module):
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
         self.dropout = nn.Dropout(dropout)
-        self.activation = F.relu if activation == "relu" else F.gelu
+        self.activation = F.relu if activation == 'relu' else F.gelu
 
     def forward(self, x, attn_mask=None):
         new_x, attn = self.attention(x, x, x, attn_mask=attn_mask)
@@ -86,7 +86,7 @@ class DecoderLayer(nn.Module):
         d_model,
         d_ff=None,
         dropout=0.1,
-        activation="relu",
+        activation='relu',
     ):
         super(DecoderLayer, self).__init__()
         d_ff = d_ff or 4 * d_model
@@ -98,7 +98,7 @@ class DecoderLayer(nn.Module):
         self.norm2 = nn.LayerNorm(d_model)
         self.norm3 = nn.LayerNorm(d_model)
         self.dropout = nn.Dropout(dropout)
-        self.activation = F.relu if activation == "relu" else F.gelu
+        self.activation = F.relu if activation == 'relu' else F.gelu
 
     def forward(self, x, cross, x_mask=None, cross_mask=None):
         x = x + self.dropout(self.self_attention(x, x, x, attn_mask=x_mask)[0])

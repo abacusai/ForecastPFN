@@ -7,14 +7,14 @@ import torch
 import torch.nn as nn
 
 
-def get_frequency_modes(seq_len, modes=64, mode_select_method="random"):
+def get_frequency_modes(seq_len, modes=64, mode_select_method='random'):
     """
     get modes on frequency domain:
     'random' means sampling randomly;
     'else' means sampling the lowest modes;
     """
     modes = min(modes, seq_len // 2)
-    if mode_select_method == "random":
+    if mode_select_method == 'random':
         index = list(range(0, seq_len // 2))
         np.random.shuffle(index)
         index = index[:modes]
@@ -27,10 +27,10 @@ def get_frequency_modes(seq_len, modes=64, mode_select_method="random"):
 # ########## fourier layer #############
 class FourierBlock(nn.Module):
     def __init__(
-        self, in_channels, out_channels, seq_len, modes=0, mode_select_method="random"
+        self, in_channels, out_channels, seq_len, modes=0, mode_select_method='random'
     ):
         super(FourierBlock, self).__init__()
-        print("fourier enhanced block used!")
+        print('fourier enhanced block used!')
         """
         1D Fourier block. It performs representation learning on frequency domain, 
         it does FFT, linear transform, and Inverse FFT.    
@@ -39,7 +39,7 @@ class FourierBlock(nn.Module):
         self.index = get_frequency_modes(
             seq_len, modes=modes, mode_select_method=mode_select_method
         )
-        print("modes={}, index={}".format(modes, self.index))
+        print('modes={}, index={}'.format(modes, self.index))
 
         self.scale = 1 / (in_channels * out_channels)
         self.weights1 = nn.Parameter(
@@ -56,7 +56,7 @@ class FourierBlock(nn.Module):
     # Complex multiplication
     def compl_mul1d(self, input, weights):
         # (batch, in_channel, x ), (in_channel, out_channel, x) -> (batch, out_channel, x)
-        return torch.einsum("bhi,hio->bho", input, weights)
+        return torch.einsum('bhi,hio->bho', input, weights)
 
     def forward(self, q, k, v, mask):
         # size = [B, L, H, E]
@@ -84,12 +84,12 @@ class FourierCrossAttention(nn.Module):
         seq_len_q,
         seq_len_kv,
         modes=64,
-        mode_select_method="random",
-        activation="tanh",
+        mode_select_method='random',
+        activation='tanh',
         policy=0,
     ):
         super(FourierCrossAttention, self).__init__()
-        print(" fourier enhanced cross attention used!")
+        print(' fourier enhanced cross attention used!')
         """
         1D Fourier Cross Attention layer. It does FFT, linear transform, attention mechanism and Inverse FFT.    
         """
@@ -104,8 +104,8 @@ class FourierCrossAttention(nn.Module):
             seq_len_kv, modes=modes, mode_select_method=mode_select_method
         )
 
-        print("modes_q={}, index_q={}".format(len(self.index_q), self.index_q))
-        print("modes_kv={}, index_kv={}".format(len(self.index_kv), self.index_kv))
+        print('modes_q={}, index_q={}'.format(len(self.index_q), self.index_q))
+        print('modes_kv={}, index_kv={}'.format(len(self.index_kv), self.index_kv))
 
         self.scale = 1 / (in_channels * out_channels)
         self.weights1 = nn.Parameter(
@@ -122,7 +122,7 @@ class FourierCrossAttention(nn.Module):
     # Complex multiplication
     def compl_mul1d(self, input, weights):
         # (batch, in_channel, x ), (in_channel, out_channel, x) -> (batch, out_channel, x)
-        return torch.einsum("bhi,hio->bho", input, weights)
+        return torch.einsum('bhi,hio->bho', input, weights)
 
     def forward(self, q, k, v, mask):
         # size = [B, L, H, E]
@@ -146,18 +146,18 @@ class FourierCrossAttention(nn.Module):
             xk_ft_[:, :, :, i] = xk_ft[:, :, :, j]
 
         # perform attention mechanism on frequency domain
-        xqk_ft = torch.einsum("bhex,bhey->bhxy", xq_ft_, xk_ft_)
-        if self.activation == "tanh":
+        xqk_ft = torch.einsum('bhex,bhey->bhxy', xq_ft_, xk_ft_)
+        if self.activation == 'tanh':
             xqk_ft = xqk_ft.tanh()
-        elif self.activation == "softmax":
+        elif self.activation == 'softmax':
             xqk_ft = torch.softmax(abs(xqk_ft), dim=-1)
             xqk_ft = torch.complex(xqk_ft, torch.zeros_like(xqk_ft))
         else:
             raise Exception(
-                "{} actiation function is not implemented".format(self.activation)
+                '{} actiation function is not implemented'.format(self.activation)
             )
-        xqkv_ft = torch.einsum("bhxy,bhey->bhex", xqk_ft, xk_ft_)
-        xqkvw = torch.einsum("bhex,heox->bhox", xqkv_ft, self.weights1)
+        xqkv_ft = torch.einsum('bhxy,bhey->bhex', xqk_ft, xk_ft_)
+        xqkvw = torch.einsum('bhex,heox->bhox', xqkv_ft, self.weights1)
         out_ft = torch.zeros(B, H, E, L // 2 + 1, device=xq.device, dtype=torch.cfloat)
         for i, j in enumerate(self.index_q):
             out_ft[:, :, :, j] = xqkvw[:, :, :, i]

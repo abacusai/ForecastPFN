@@ -33,11 +33,11 @@ class EnsembleStatistics:
         self.evaluator = evaluator
         self.groups = {}
         for f in tqdm(glob(filter_path)):
-            self.predictions.append(pd.read_csv(f).set_index("id"))
-            parameters = f.split("/")[-2]
+            self.predictions.append(pd.read_csv(f).set_index('id'))
+            parameters = f.split('/')[-2]
             self.parameters.append(parameters)
-            for parameter in parameters.split(","):
-                parameter_key, parameter_value = parameter.split("=")
+            for parameter in parameters.split(','):
+                parameter_key, parameter_value = parameter.split('=')
                 if parameter_key not in self.groups:
                     self.groups[parameter_key] = {}
                 if parameter_value not in self.groups[parameter_key]:
@@ -45,9 +45,9 @@ class EnsembleStatistics:
                 self.groups[parameter_key][parameter_value].append(
                     len(self.predictions) - 1
                 )
-        self.group_names = ", ".join(self.groups.keys())
-        logging.debug(f"Loaded {len(self.predictions)} predictions")
-        logging.debug(f"Parameters: {self.group_names}")
+        self.group_names = ', '.join(self.groups.keys())
+        logging.debug(f'Loaded {len(self.predictions)} predictions')
+        logging.debug(f'Parameters: {self.group_names}')
 
     def bootstrap(
         self,
@@ -89,7 +89,7 @@ class EnsembleStatistics:
                     continue
                 ensemble_predictions = (
                     pd.concat([self.predictions[i] for i in ensemble_ids], sort=False)
-                    .groupby(level="id", sort=False)
+                    .groupby(level='id', sort=False)
                     .median()
                 )
                 group_columns = dict(zip(group_keys, group_instance))
@@ -100,8 +100,8 @@ class EnsembleStatistics:
                     results.append(
                         pd.DataFrame(
                             {
-                                "metric": evaluation_value,
-                                "evaluation_key": evaluation_key,
+                                'metric': evaluation_value,
+                                'evaluation_key': evaluation_key,
                                 **group_columns,
                             },
                             index=[0],

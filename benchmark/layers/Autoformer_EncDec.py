@@ -103,7 +103,7 @@ class EncoderLayer(nn.Module):
         d_ff=None,
         moving_avg=25,
         dropout=0.1,
-        activation="relu",
+        activation='relu',
     ):
         super(EncoderLayer, self).__init__()
         d_ff = d_ff or 4 * d_model
@@ -123,7 +123,7 @@ class EncoderLayer(nn.Module):
             self.decomp2 = series_decomp(moving_avg)
 
         self.dropout = nn.Dropout(dropout)
-        self.activation = F.relu if activation == "relu" else F.gelu
+        self.activation = F.relu if activation == 'relu' else F.gelu
 
     def forward(self, x, attn_mask=None):
         new_x, attn = self.attention(x, x, x, attn_mask=attn_mask)
@@ -183,7 +183,7 @@ class DecoderLayer(nn.Module):
         d_ff=None,
         moving_avg=25,
         dropout=0.1,
-        activation="relu",
+        activation='relu',
     ):
         super(DecoderLayer, self).__init__()
         d_ff = d_ff or 4 * d_model
@@ -212,10 +212,10 @@ class DecoderLayer(nn.Module):
             kernel_size=3,
             stride=1,
             padding=1,
-            padding_mode="circular",
+            padding_mode='circular',
             bias=False,
         )
-        self.activation = F.relu if activation == "relu" else F.gelu
+        self.activation = F.relu if activation == 'relu' else F.gelu
 
     def forward(self, x, cross, x_mask=None, cross_mask=None):
         x = x + self.dropout(self.self_attention(x, x, x, attn_mask=x_mask)[0])

@@ -14,14 +14,14 @@ from resources.m4.dataset import M4Dataset, M4Meta
 @dataclass
 class M4Evaluator(Evaluator):
     validation: bool = False
-    metric: str = "sMAPE"
+    metric: str = 'sMAPE'
 
     def evaluate(self, forecast: TimeseriesBundle) -> EvaluationResult:
         insamples, _ = M4Dataset(M4Meta.dataset_path).standard_split()
         if self.validation:
             horizons_map = M4Meta().horizons_map()
             insamples, _ = insamples.split(
-                lambda ts: ts.split(-horizons_map[ts.meta["seasonal_pattern"]])
+                lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']])
             )
 
         grouped_smapes = {
@@ -36,13 +36,13 @@ class M4Evaluator(Evaluator):
 
         grouped_smapes = self.summarize_groups(grouped_smapes)
 
-        if self.metric == "OWA":
+        if self.metric == 'OWA':
             grouped_owa = OrderedDict()
             if not self.validation:
                 naive2_forecasts = pd.read_csv(
-                    os.path.join(M4Meta.dataset_path, "submission-Naive2.csv")
+                    os.path.join(M4Meta.dataset_path, 'submission-Naive2.csv')
                 )
-                naive2_forecasts.set_index(keys="id", inplace=True)
+                naive2_forecasts.set_index(keys='id', inplace=True)
 
                 model_mases = {}
                 naive2_smapes = {}
@@ -56,7 +56,7 @@ class M4Evaluator(Evaluator):
                     model_forecast_values = model_forecasts.values()
 
                     target = self.test_set.filter(
-                        lambda ts: ts.meta["seasonal_pattern"] == sp
+                        lambda ts: ts.meta['seasonal_pattern'] == sp
                     )
                     target_values = np.array(target.values())
                     # all timeseries within group have same frequency
@@ -107,7 +107,7 @@ class M4Evaluator(Evaluator):
         scores_summary = OrderedDict()
 
         weighted_score = {}
-        for sp in ["Yearly", "Quarterly", "Monthly", "Weekly", "Daily", "Hourly"]:
+        for sp in ['Yearly', 'Quarterly', 'Monthly', 'Weekly', 'Daily', 'Hourly']:
             weighted_score[sp] = scores[sp] * len(
                 M4Dataset.filter(self.test_set, sp).timeseries
             )
@@ -115,41 +115,41 @@ class M4Evaluator(Evaluator):
 
         others_score = 0
         others_count = 0
-        for sp in ["Weekly", "Daily", "Hourly"]:
+        for sp in ['Weekly', 'Daily', 'Hourly']:
             number_of_timeseries = len(M4Dataset.filter(self.test_set, sp).timeseries)
             others_score += scores[sp] * number_of_timeseries
             others_count += number_of_timeseries
-        weighted_score["Others"] = others_score
-        scores_summary["Others"] = others_score / others_count
+        weighted_score['Others'] = others_score
+        scores_summary['Others'] = others_score / others_count
 
         others_score = 0
         others_count = 0
-        for sp in ["Daily", "Weekly"]:
+        for sp in ['Daily', 'Weekly']:
             number_of_timeseries = len(M4Dataset.filter(self.test_set, sp).timeseries)
             others_score += scores[sp] * number_of_timeseries
             others_count += number_of_timeseries
-        weighted_score["D+W"] = others_score
-        scores_summary["D+W"] = others_score / others_count
+        weighted_score['D+W'] = others_score
+        scores_summary['D+W'] = others_score / others_count
 
         others_score = 0
         others_count = 0
-        for sp in ["Daily", "Weekly", "Monthly"]:
+        for sp in ['Daily', 'Weekly', 'Monthly']:
             number_of_timeseries = len(M4Dataset.filter(self.test_set, sp).timeseries)
             others_score += scores[sp] * number_of_timeseries
             others_count += number_of_timeseries
-        weighted_score["D+W+M"] = others_score
-        scores_summary["D+W+M"] = others_score / others_count
+        weighted_score['D+W+M'] = others_score
+        scores_summary['D+W+M'] = others_score / others_count
         others_score = 0
         others_count = 0
-        for sp in ["Daily", "Weekly", "Monthly", "Yearly"]:
+        for sp in ['Daily', 'Weekly', 'Monthly', 'Yearly']:
             number_of_timeseries = len(M4Dataset.filter(self.test_set, sp).timeseries)
             others_score += scores[sp] * number_of_timeseries
             others_count += number_of_timeseries
-        weighted_score["D+W+M+Y"] = others_score
-        scores_summary["D+W+M+Y"] = others_score / others_count
+        weighted_score['D+W+M+Y'] = others_score
+        scores_summary['D+W+M+Y'] = others_score / others_count
 
         average = np.sum(list(weighted_score.values())) / len(self.test_set.timeseries)
-        scores_summary["Average"] = average
+        scores_summary['Average'] = average
 
         return scores_summary
 

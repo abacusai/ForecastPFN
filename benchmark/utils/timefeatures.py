@@ -14,7 +14,7 @@ class TimeFeature:
         pass
 
     def __repr__(self):
-        return self.__class__.__name__ + "()"
+        return self.__class__.__name__ + '()'
 
 
 class SecondOfMinute(TimeFeature):
@@ -130,5 +130,5 @@ def time_features_from_frequency_str(freq_str: str) -> List[TimeFeature]:
     raise RuntimeError(supported_freq_msg)
 
 
-def time_features(dates, freq="h"):
+def time_features(dates, freq='h'):
     return np.vstack([feat(dates) for feat in time_features_from_frequency_str(freq)])

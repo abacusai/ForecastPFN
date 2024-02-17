@@ -23,10 +23,10 @@ def phi_(phi_c, x, lb=0, ub=1):
 
 
 def get_phi_psi(k, base):
-    x = Symbol("x")
+    x = Symbol('x')
     phi_coeff = np.zeros((k, k))
     phi_2x_coeff = np.zeros((k, k))
-    if base == "legendre":
+    if base == 'legendre':
         for ki in range(k):
             coeff_ = Poly(legendre(ki, 2 * x - 1), x).all_coeffs()
             phi_coeff[ki, : ki + 1] = np.flip(
@@ -97,7 +97,7 @@ def get_phi_psi(k, base):
         psi1 = [np.poly1d(np.flip(psi1_coeff[i, :])) for i in range(k)]
         psi2 = [np.poly1d(np.flip(psi2_coeff[i, :])) for i in range(k)]
 
-    elif base == "chebyshev":
+    elif base == 'chebyshev':
         for ki in range(k):
             if ki == 0:
                 phi_coeff[ki, : ki + 1] = np.sqrt(2 / np.pi)
@@ -117,7 +117,7 @@ def get_phi_psi(k, base):
 
         phi = [partial(phi_, phi_coeff[i, :]) for i in range(k)]
 
-        x = Symbol("x")
+        x = Symbol('x')
         kUse = 2 * k
         roots = Poly(chebyshevt(kUse, 2 * x - 1)).all_roots()
         x_m = np.array([rt.evalf(20) for rt in roots]).astype(np.float64)
@@ -166,10 +166,10 @@ def get_filter(base, k):
         mask = (inp <= 0.5) * 1.0
         return psi1[i](inp) * mask + psi2[i](inp) * (1 - mask)
 
-    if base not in ["legendre", "chebyshev"]:
-        raise Exception("Base not supported")
+    if base not in ['legendre', 'chebyshev']:
+        raise Exception('Base not supported')
 
-    x = Symbol("x")
+    x = Symbol('x')
     H0 = np.zeros((k, k))
     H1 = np.zeros((k, k))
     G0 = np.zeros((k, k))
@@ -177,7 +177,7 @@ def get_filter(base, k):
     PHI0 = np.zeros((k, k))
     PHI1 = np.zeros((k, k))
     phi, psi1, psi2 = get_phi_psi(k, base)
-    if base == "legendre":
+    if base == 'legendre':
         roots = Poly(legendre(k, 2 * x - 1)).all_roots()
         x_m = np.array([rt.evalf(20) for rt in roots]).astype(np.float64)
         wm = 1 / k / legendreDer(k, 2 * x_m - 1) / eval_legendre(k - 1, 2 * x_m - 1)
@@ -204,8 +204,8 @@ def get_filter(base, k):
         PHI0 = np.eye(k)
         PHI1 = np.eye(k)
 
-    elif base == "chebyshev":
-        x = Symbol("x")
+    elif base == 'chebyshev':
+        x = Symbol('x')
         kUse = 2 * k
         roots = Poly(chebyshevt(kUse, 2 * x - 1)).all_roots()
         x_m = np.array([rt.evalf(20) for rt in roots]).astype(np.float64)
@@ -285,7 +285,7 @@ def train(
 
     if verbose > 0:
         print(
-            "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
+            'Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch,
                 batch_idx * len(data),
                 len(train_loader.dataset),

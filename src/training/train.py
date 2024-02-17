@@ -16,14 +16,14 @@ from utils import load_tf_dataset
 
 
 def get_combined_ds(config):
-    version = config["version"]
+    version = config['version']
 
     # all the datasets we have. Ideally we use only 3 of these for trainig
     # adjust the values in this list accordingly
     datasets = [
-        load_tf_dataset(config["prefix"] + f"{version}/daily.tfrecords"),
-        load_tf_dataset(config["prefix"] + f"{version}/weekly.tfrecords"),
-        load_tf_dataset(config["prefix"] + f"{version}/monthly.tfrecords"),
+        load_tf_dataset(config['prefix'] + f'{version}/daily.tfrecords'),
+        load_tf_dataset(config['prefix'] + f'{version}/weekly.tfrecords'),
+        load_tf_dataset(config['prefix'] + f'{version}/monthly.tfrecords'),
     ]
 
     combined_ds = tf.data.Dataset.choose_from_datasets(
@@ -38,18 +38,18 @@ def main():
     np.random.seed(42)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", required=True, help="Path to config file")
+    parser.add_argument('-c', '--config', required=True, help='Path to config file')
     args = parser.parse_args()
 
     with open(args.config) as config_file:
         config = yaml.load(config_file, yaml.loader.SafeLoader)
 
-    Config.set_sub_day(config["sub_day"])
+    Config.set_sub_day(config['sub_day'])
 
     combined_ds = get_combined_ds(config)
-    train_df, test_df = create_train_test_df(combined_ds, config["test_noise"])
+    train_df, test_df = create_train_test_df(combined_ds, config['test_noise'])
 
-    model = TransformerModel(scaler=config["scaler"])
+    model = TransformerModel(scaler=config['scaler'])
 
     def smape(y_true, y_pred):
         """Calculate Armstrong's original definition of sMAPE between `y_true` & `y_pred`.
@@ -76,8 +76,8 @@ def main():
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
         loss=tf.keras.losses.MeanSquaredError(),
         metrics=[
-            tf.keras.metrics.MeanAbsolutePercentageError(name="mape"),
-            tf.keras.metrics.MeanSquaredError(name="mse"),
+            tf.keras.metrics.MeanAbsolutePercentageError(name='mape'),
+            tf.keras.metrics.MeanSquaredError(name='mse'),
             smape,
         ],
     )
@@ -133,25 +133,25 @@ def main():
                 )
 
                 for metric, result in zip(self.model.metrics_names, results):
-                    valuename = validation_set_name + "_" + metric
+                    valuename = validation_set_name + '_' + metric
                     self.history.setdefault(valuename, []).append(result)
                     with self.tbCallback._val_writer.as_default(step=epoch):
                         tf.summary.scalar(valuename, result)
 
-    fit_id = ".".join(
-        [config["model_save_name"], datetime.datetime.now().strftime("%Y%m%d-%H%M%S")]
+    fit_id = '.'.join(
+        [config['model_save_name'], datetime.datetime.now().strftime('%Y%m%d-%H%M%S')]
     )
 
-    logdir = f"/home/ubuntu/tensorboard/notebook/pretrained/{fit_id}"
+    logdir = f'/home/ubuntu/tensorboard/notebook/pretrained/{fit_id}'
     tbCallback = tf.keras.callbacks.TensorBoard(logdir)
-    tbCallback._val_dir = logdir + "/validation"
+    tbCallback._val_dir = logdir + '/validation'
     callbacks = tf.keras.callbacks.CallbackList(
         callbacks=[
             tf.keras.callbacks.ModelCheckpoint(
-                config["prefix"] + f"models/{fit_id}/ckpts", monitor="loss", verbose=1
+                config['prefix'] + f'models/{fit_id}/ckpts', monitor='loss', verbose=1
             ),
             tf.keras.callbacks.TensorBoard(
-                f"/home/ubuntu/tensorboard/notebook/pretrained/{fit_id}"
+                f'/home/ubuntu/tensorboard/notebook/pretrained/{fit_id}'
             ),
         ],
         add_history=True,
@@ -170,8 +170,8 @@ def main():
         callbacks=callbacks,
     )
 
-    model.save(config["prefix"] + "models/" + config["model_save_name"])
+    model.save(config['prefix'] + 'models/' + config['model_save_name'])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

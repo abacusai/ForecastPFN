@@ -18,8 +18,8 @@ from tqdm import tqdm
 
 def get_module_path():
     module_path = os.path.dirname(inspect.stack()[1].filename)
-    if module_path.startswith("/project/source/"):  # happens in jupyterlab
-        module_path = module_path.replace("/project/source/", "")
+    if module_path.startswith('/project/source/'):  # happens in jupyterlab
+        module_path = module_path.replace('/project/source/', '')
     return module_path
 
 
@@ -31,9 +31,9 @@ def round_half_up(n, precision):
 
 def median_ensemble(
     experiment_path: str,
-    summary_filter: str = "**",
-    forecast_file: str = "forecast.csv",
-    group_by: str = "id",
+    summary_filter: str = '**',
+    forecast_file: str = 'forecast.csv',
+    group_by: str = 'id',
 ):
     return (
         pd.concat(
@@ -66,7 +66,7 @@ def download_url(url: str, file_path: str) -> None:
 
     def progress(count, block_size, total_size):
         sys.stdout.write(
-            "\rDownloading {} from {} {:.1f}%".format(
+            '\rDownloading {} from {} {:.1f}%'.format(
                 file_path, url, float(count * block_size) / float(total_size) * 100.0
             )
         )
@@ -74,19 +74,19 @@ def download_url(url: str, file_path: str) -> None:
 
     if not os.path.isfile(file_path):
         opener = urllib.request.build_opener()
-        opener.addheaders = [("User-agent", "Mozilla/5.0")]
+        opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         urllib.request.install_opener(opener)
         pathlib.Path(os.path.dirname(file_path)).mkdir(parents=True, exist_ok=True)
         f, _ = request.urlretrieve(url, file_path, progress)
-        sys.stdout.write("\n")
+        sys.stdout.write('\n')
         sys.stdout.flush()
         file_info = os.stat(f)
         logging.info(
-            f"Successfully downloaded {os.path.basename(file_path)} {file_info.st_size} bytes."
+            f'Successfully downloaded {os.path.basename(file_path)} {file_info.st_size} bytes.'
         )
     else:
         file_info = os.stat(file_path)
-        logging.info(f"File already exists: {file_path} {file_info.st_size} bytes.")
+        logging.info(f'File already exists: {file_path} {file_info.st_size} bytes.')
 
 
 def url_file_name(url: str) -> str:
@@ -95,7 +95,7 @@ def url_file_name(url: str) -> str:
     :param url: URL to extract file name from.
     :return: File name.
     """
-    return url.split("/")[-1] if len(url) > 0 else ""
+    return url.split('/')[-1] if len(url) > 0 else ''
 
 
 def clean_nans(values):

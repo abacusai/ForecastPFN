@@ -23,14 +23,14 @@ class Exp_Basic(object):
 
     def _acquire_device(self):
         if self.args.use_gpu:
-            os.environ["CUDA_VISIBLE_DEVICES"] = (
+            os.environ['CUDA_VISIBLE_DEVICES'] = (
                 str(self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
             )
-            device = torch.device("cuda:{}".format(self.args.gpu))
-            print("Use GPU: cuda:{}".format(self.args.gpu))
+            device = torch.device('cuda:{}'.format(self.args.gpu))
+            print('Use GPU: cuda:{}'.format(self.args.gpu))
         else:
-            device = torch.device("cpu")
-            print("Use CPU")
+            device = torch.device('cpu')
+            print('Use CPU')
         return device
 
     def _get_data(self, flag):
@@ -40,43 +40,43 @@ class Exp_Basic(object):
     def _save_test_data(self, setting, preds, trues):
         preds = np.array(preds)
         trues = np.array(trues)
-        print("test shape:", preds.shape, trues.shape)
+        print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
-        print("test shape:", preds.shape, trues.shape)
+        print('test shape:', preds.shape, trues.shape)
 
         # result save
-        folder_path = "./results/" + setting + "/"
+        folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print("mse:{}, mae:{}".format(mse, mae))
-        f = open("result.txt", "a")
-        f.write(setting + "  \n")
-        f.write("mse:{}, mae:{}".format(mse, mae))
-        f.write("\n")
-        f.write("\n")
+        print('mse:{}, mae:{}'.format(mse, mae))
+        f = open('result.txt', 'a')
+        f.write(setting + '  \n')
+        f.write('mse:{}, mae:{}'.format(mse, mae))
+        f.write('\n')
+        f.write('\n')
         f.close()
 
         output = {
-            "metrics": {
-                "mae": mae,
-                "mse": mse,
-                "rmse": rmse,
-                "mape": mape,
-                "mspe": mspe,
+            'metrics': {
+                'mae': mae,
+                'mse': mse,
+                'rmse': rmse,
+                'mape': mape,
+                'mspe': mspe,
             },
-            "train_timer": self.train_timer.total_time,
-            "vali_timer": self.vali_timer.total_time,
-            "test_timer": self.test_timer.total_time,
-            "args": self.args,
+            'train_timer': self.train_timer.total_time,
+            'vali_timer': self.vali_timer.total_time,
+            'test_timer': self.test_timer.total_time,
+            'args': self.args,
         }
         print(output)
 
-        np.save(folder_path + "metrics.npy", output)
-        np.save(folder_path + "pred.npy", preds)
-        np.save(folder_path + "true.npy", trues)
+        np.save(folder_path + 'metrics.npy', output)
+        np.save(folder_path + 'pred.npy', preds)
+        np.save(folder_path + 'true.npy', trues)
 
         return mae, mse, rmse, mape, mspe
 

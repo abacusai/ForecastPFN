@@ -5,7 +5,7 @@ import prophet
 
 from exp.exp_basic import Exp_Basic
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings('ignore')
 
 
 class Exp_Prophet(Exp_Basic):
@@ -16,11 +16,11 @@ class Exp_Prophet(Exp_Basic):
         return prophet.Prophet()
 
     def train(self, setting):
-        train_data, train_loader = self._get_data(flag="train")
+        train_data, train_loader = self._get_data(flag='train')
         train_df = pd.DataFrame(
             {
-                "y": train_data.data_y.T[0],
-                "ds": list(pd.to_datetime(train_data.data_stamp_original["date"])),
+                'y': train_data.data_y.T[0],
+                'ds': list(pd.to_datetime(train_data.data_stamp_original['date'])),
             }
         )
         self.train_timer.start_timer()
@@ -31,11 +31,11 @@ class Exp_Prophet(Exp_Basic):
     def test(self, setting, test=0):
         horizon = self.args.pred_len
 
-        test_data, test_loader = self._get_data(flag="test")
+        test_data, test_loader = self._get_data(flag='test')
         test_df = pd.DataFrame(
             {
-                "y": test_data.data_y.T[0],
-                "ds": list(pd.to_datetime(test_data.data_stamp_original["date"])),
+                'y': test_data.data_y.T[0],
+                'ds': list(pd.to_datetime(test_data.data_stamp_original['date'])),
             }
         )
         self.model.make_future_dataframe(test_data.data_x.shape[0])
@@ -43,18 +43,18 @@ class Exp_Prophet(Exp_Basic):
 
         cmp = pd.DataFrame(
             {
-                "date": test_df["ds"].values,
-                "ds": forecast.ds.values,
-                "y": test_df["y"].values,
-                "yhat": forecast.yhat.values,
+                'date': test_df['ds'].values,
+                'ds': forecast.ds.values,
+                'y': test_df['y'].values,
+                'yhat': forecast.yhat.values,
             }
         )
 
         preds, trues = [], []
         self.test_timer.start_timer()
         for i in range(self.args.seq_len, cmp.shape[0] - horizon + 1):
-            pred = cmp[i : i + horizon]["yhat"].values
-            true = cmp[i : i + horizon]["y"].values
+            pred = cmp[i : i + horizon]['yhat'].values
+            true = cmp[i : i + horizon]['y'].values
             preds += [pred]
             trues += [true]
 

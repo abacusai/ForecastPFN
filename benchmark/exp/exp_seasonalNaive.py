@@ -5,7 +5,7 @@ import torch
 
 from exp.exp_basic import Exp_Basic
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings('ignore')
 
 
 class Exp_SeasonalNaive(Exp_Basic):
@@ -19,7 +19,7 @@ class Exp_SeasonalNaive(Exp_Basic):
         return
 
     def test(self, setting, test=0):
-        test_data, test_loader = self._get_data(flag="test")
+        test_data, test_loader = self._get_data(flag='test')
 
         preds, trues = [], []
         self.test_timer.start_timer()

@@ -28,9 +28,9 @@ def tf_generate_n(
 
     for i in range(N):
         if i % 1000 == 0:
-            print(f"Completed: {i}")
+            print(f'Completed: {i}')
 
-        if i < N * options.get("linear_random_walk_frac", 0):
+        if i < N * options.get('linear_random_walk_frac', 0):
             cfg, sample = generate(
                 size,
                 freq_index=freq_index,
@@ -51,16 +51,16 @@ def tf_generate_n(
         yield tf.train.Example(
             features=tf.train.Features(
                 feature={
-                    "id": tf.train.Feature(bytes_list=tf.train.BytesList(value=[id_])),
-                    "ts": tf.train.Feature(
+                    'id': tf.train.Feature(bytes_list=tf.train.BytesList(value=[id_])),
+                    'ts': tf.train.Feature(
                         int64_list=tf.train.Int64List(
                             value=sample.index.astype(np.int64)
                         )
                     ),
-                    "y": tf.train.Feature(
+                    'y': tf.train.Feature(
                         float_list=tf.train.FloatList(value=sample.series_values.values)
                     ),
-                    "noise": tf.train.Feature(
+                    'noise': tf.train.Feature(
                         float_list=tf.train.FloatList(value=sample.noise.values)
                     ),
                 }
@@ -74,7 +74,7 @@ def save_tf_records(prefix: str, dest: str, it):
     """
     with NamedTemporaryFile() as tfile:
         with tf.io.TFRecordWriter(
-            tfile.name, options=tf.io.TFRecordOptions(compression_type="GZIP")
+            tfile.name, options=tf.io.TFRecordOptions(compression_type='GZIP')
         ) as writer:
             for record in it:
                 writer.write(record.SerializeToString())
@@ -87,25 +87,25 @@ def decode_fn(record_bytes):
 
 
 def load_tf_dataset(prefix: str, src: str):
-    return tf.data.TFRecordDataset(prefix + src, compression_type="GZIP").map(decode_fn)
+    return tf.data.TFRecordDataset(prefix + src, compression_type='GZIP').map(decode_fn)
 
 
 def convert_tf_to_rows(records):
     for i, r in enumerate(records):
         if i % 1000 == 0:
-            print(f"Completed: {i}")
-        id_ = r["id"].decode()
+            print(f'Completed: {i}')
+        id_ = r['id'].decode()
         for ts, y, noise in zip(
-            (date.fromtimestamp(v / 1_000_000_000) for v in r["ts"]),
-            (float(v) for v in r["y"]),
-            (float(_noise) for _noise in r["noise"]),
+            (date.fromtimestamp(v / 1_000_000_000) for v in r['ts']),
+            (float(v) for v in r['y']),
+            (float(_noise) for _noise in r['noise']),
         ):
-            yield {"id": id_, "ts": ts, "y": y, "noise": noise}
+            yield {'id': id_, 'ts': ts, 'y': y, 'noise': noise}
 
 
 def generate_product_input(prefix: str, dest: str, it):
     """
     Write generated dataset into avro files
     """
-    with CloudLocation(prefix + dest).open(mode="wb") as file:
-        fastavro.writer(file, PRODUCT_SCHEMA, it, codec="deflate")
+    with CloudLocation(prefix + dest).open(mode='wb') as file:
+        fastavro.writer(file, PRODUCT_SCHEMA, it, codec='deflate')

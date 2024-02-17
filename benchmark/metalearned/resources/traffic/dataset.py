@@ -21,10 +21,10 @@ https://github.com/rofuyu/exp-trmf-nips16/blob/master/python/exp-scripts/dataset
 
 @dataclass(frozen=True)
 class TrafficMeta:
-    dataset_path = os.path.join(RESOURCES_DIR, "traffic")
+    dataset_path = os.path.join(RESOURCES_DIR, 'traffic')
     horizon = 24
     stations = 963
-    seasonal_pattern = "Hourly"
+    seasonal_pattern = 'Hourly'
     period = 24 * 7
     # as per https://arxiv.org/pdf/1704.04110.pdf
     deepar_split = datetime(2008, 6, 15, 0)
@@ -34,22 +34,22 @@ class TrafficMeta:
 
 class TrafficDataset(TimeseriesLoader):
     def download(self) -> TimeseriesBundle:
-        archive_file = os.path.join(self.path, "dataset.zip")
-        train_raw_file = os.path.join(self.path, "PEMS_train")
-        test_raw_file = os.path.join(self.path, "PEMS_test")
-        perm_raw_file = os.path.join(self.path, "randperm")
+        archive_file = os.path.join(self.path, 'dataset.zip')
+        train_raw_file = os.path.join(self.path, 'PEMS_train')
+        test_raw_file = os.path.join(self.path, 'PEMS_test')
+        perm_raw_file = os.path.join(self.path, 'randperm')
         download_url(
-            "https://archive.ics.uci.edu/ml/machine-learning-databases/00204/PEMS-SF.zip",
+            'https://archive.ics.uci.edu/ml/machine-learning-databases/00204/PEMS-SF.zip',
             archive_file,
         )
         patoolib.extract_archive(archive_file, outdir=self.path)
-        with open(train_raw_file, "r") as f:
+        with open(train_raw_file, 'r') as f:
             train_raw_data = f.readlines()
-        with open(test_raw_file, "r") as f:
+        with open(test_raw_file, 'r') as f:
             test_raw_data = f.readlines()
-        with open(perm_raw_file, "r") as f:
+        with open(perm_raw_file, 'r') as f:
             permutations = f.readlines()
-        permutations = np.array(permutations[0].rstrip()[1:-1].split(" ")).astype(
+        permutations = np.array(permutations[0].rstrip()[1:-1].split(' ')).astype(
             np.int
         )
 
@@ -82,24 +82,24 @@ class TrafficDataset(TimeseriesLoader):
         #  ------------------------------------------
         # Thus 455 - 15 = 440 days from 2008-01-01 to 2008-03-30 (incl.)
         start_date = datetime.strptime(
-            "2008-01-02", "%Y-%m-%d"
+            '2008-01-02', '%Y-%m-%d'
         )  # 2008-01-01 is a holiday
         current_date = start_date
         excluded_dates = [
-            datetime.strptime("2008-01-21", "%Y-%m-%d"),
-            datetime.strptime("2008-02-18", "%Y-%m-%d"),
-            datetime.strptime("2008-03-09", "%Y-%m-%d"),
-            datetime.strptime("2008-05-26", "%Y-%m-%d"),
-            datetime.strptime("2008-07-04", "%Y-%m-%d"),
-            datetime.strptime("2008-09-01", "%Y-%m-%d"),
-            datetime.strptime("2008-10-13", "%Y-%m-%d"),
-            datetime.strptime("2008-11-11", "%Y-%m-%d"),
-            datetime.strptime("2008-11-27", "%Y-%m-%d"),
-            datetime.strptime("2008-12-25", "%Y-%m-%d"),
-            datetime.strptime("2009-01-01", "%Y-%m-%d"),
-            datetime.strptime("2009-01-19", "%Y-%m-%d"),
-            datetime.strptime("2009-02-16", "%Y-%m-%d"),
-            datetime.strptime("2009-03-08", "%Y-%m-%d"),
+            datetime.strptime('2008-01-21', '%Y-%m-%d'),
+            datetime.strptime('2008-02-18', '%Y-%m-%d'),
+            datetime.strptime('2008-03-09', '%Y-%m-%d'),
+            datetime.strptime('2008-05-26', '%Y-%m-%d'),
+            datetime.strptime('2008-07-04', '%Y-%m-%d'),
+            datetime.strptime('2008-09-01', '%Y-%m-%d'),
+            datetime.strptime('2008-10-13', '%Y-%m-%d'),
+            datetime.strptime('2008-11-11', '%Y-%m-%d'),
+            datetime.strptime('2008-11-27', '%Y-%m-%d'),
+            datetime.strptime('2008-12-25', '%Y-%m-%d'),
+            datetime.strptime('2009-01-01', '%Y-%m-%d'),
+            datetime.strptime('2009-01-19', '%Y-%m-%d'),
+            datetime.strptime('2009-02-16', '%Y-%m-%d'),
+            datetime.strptime('2009-03-08', '%Y-%m-%d'),
         ]
 
         values = []
@@ -107,8 +107,8 @@ class TrafficDataset(TimeseriesLoader):
             if current_date not in excluded_dates:
                 matrix = raw_data[np.where(permutations == i + 1)[0][0]].rstrip()[1:-1]
                 daily = []
-                for row_vector in matrix.split(";"):
-                    daily.append(np.array(row_vector.split(" ")).astype(np.float32))
+                for row_vector in matrix.split(';'):
+                    daily.append(np.array(row_vector.split(' ')).astype(np.float32))
                 daily = np.array(daily)
                 if len(values) == 0:
                     values = daily
@@ -144,5 +144,5 @@ class TrafficDataset(TimeseriesLoader):
         return bundle.split(lambda ts: ts.split(-24 * 7))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     TrafficDataset(TrafficMeta.dataset_path).build_cache()

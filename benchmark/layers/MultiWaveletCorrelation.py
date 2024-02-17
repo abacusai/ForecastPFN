@@ -9,7 +9,7 @@ from torch import Tensor
 
 from layers.utils import get_filter
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class MultiWaveletTransform(nn.Module):
@@ -25,11 +25,11 @@ class MultiWaveletTransform(nn.Module):
         c=128,
         nCZ=1,
         L=0,
-        base="legendre",
+        base='legendre',
         attention_dropout=0.1,
     ):
         super(MultiWaveletTransform, self).__init__()
-        print("base", base)
+        print('base', base)
         self.k = k
         self.c = c
         self.L = L
@@ -78,14 +78,14 @@ class MultiWaveletCross(nn.Module):
         k=8,
         ich=512,
         L=0,
-        base="legendre",
-        mode_select_method="random",
+        base='legendre',
+        mode_select_method='random',
         initializer=None,
-        activation="tanh",
+        activation='tanh',
         **kwargs,
     ):
         super(MultiWaveletCross, self).__init__()
-        print("base", base)
+        print('base', base)
 
         self.c = c
         self.k = k
@@ -139,11 +139,11 @@ class MultiWaveletCross(nn.Module):
             mode_select_method=mode_select_method,
         )
         self.T0 = nn.Linear(k, k)
-        self.register_buffer("ec_s", torch.Tensor(np.concatenate((H0.T, H1.T), axis=0)))
-        self.register_buffer("ec_d", torch.Tensor(np.concatenate((G0.T, G1.T), axis=0)))
+        self.register_buffer('ec_s', torch.Tensor(np.concatenate((H0.T, H1.T), axis=0)))
+        self.register_buffer('ec_d', torch.Tensor(np.concatenate((G0.T, G1.T), axis=0)))
 
-        self.register_buffer("rc_e", torch.Tensor(np.concatenate((H0r, G0r), axis=0)))
-        self.register_buffer("rc_o", torch.Tensor(np.concatenate((H1r, G1r), axis=0)))
+        self.register_buffer('rc_e', torch.Tensor(np.concatenate((H0r, G0r), axis=0)))
+        self.register_buffer('rc_o', torch.Tensor(np.concatenate((H1r, G1r), axis=0)))
 
         self.Lk = nn.Linear(ich, c * k)
         self.Lq = nn.Linear(ich, c * k)
@@ -258,11 +258,11 @@ class FourierCrossAttentionW(nn.Module):
         seq_len_q,
         seq_len_kv,
         modes=16,
-        activation="tanh",
-        mode_select_method="random",
+        activation='tanh',
+        mode_select_method='random',
     ):
         super(FourierCrossAttentionW, self).__init__()
-        print("corss fourier correlation used!")
+        print('corss fourier correlation used!')
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.modes1 = modes
@@ -291,17 +291,17 @@ class FourierCrossAttentionW(nn.Module):
         xk_ft = torch.fft.rfft(xk, dim=-1)
         for i, j in enumerate(self.index_k_v):
             xk_ft_[:, :, :, i] = xk_ft[:, :, :, j]
-        xqk_ft = torch.einsum("bhex,bhey->bhxy", xq_ft_, xk_ft_)
-        if self.activation == "tanh":
+        xqk_ft = torch.einsum('bhex,bhey->bhxy', xq_ft_, xk_ft_)
+        if self.activation == 'tanh':
             xqk_ft = xqk_ft.tanh()
-        elif self.activation == "softmax":
+        elif self.activation == 'softmax':
             xqk_ft = torch.softmax(abs(xqk_ft), dim=-1)
             xqk_ft = torch.complex(xqk_ft, torch.zeros_like(xqk_ft))
         else:
             raise Exception(
-                "{} actiation function is not implemented".format(self.activation)
+                '{} actiation function is not implemented'.format(self.activation)
             )
-        xqkv_ft = torch.einsum("bhxy,bhey->bhex", xqk_ft, xk_ft_)
+        xqkv_ft = torch.einsum('bhxy,bhey->bhex', xqk_ft, xk_ft_)
 
         xqkvw = xqkv_ft
         out_ft = torch.zeros(B, H, E, L // 2 + 1, device=xq.device, dtype=torch.cfloat)
@@ -329,7 +329,7 @@ class sparseKernelFT1d(nn.Module):
 
     def compl_mul1d(self, x, weights):
         # (batch, in_channel, x ), (in_channel, out_channel, x) -> (batch, out_channel, x)
-        return torch.einsum("bix,iox->box", x, weights)
+        return torch.einsum('bix,iox->box', x, weights)
 
     def forward(self, x):
         B, N, c, k = x.shape  # (B, N, c, k)
@@ -350,7 +350,7 @@ class sparseKernelFT1d(nn.Module):
 # ##
 class MWT_CZ1d(nn.Module):
     def __init__(
-        self, k=3, alpha=64, L=0, c=1, base="legendre", initializer=None, **kwargs
+        self, k=3, alpha=64, L=0, c=1, base='legendre', initializer=None, **kwargs
     ):
         super(MWT_CZ1d, self).__init__()
 
@@ -374,11 +374,11 @@ class MWT_CZ1d(nn.Module):
 
         self.T0 = nn.Linear(k, k)
 
-        self.register_buffer("ec_s", torch.Tensor(np.concatenate((H0.T, H1.T), axis=0)))
-        self.register_buffer("ec_d", torch.Tensor(np.concatenate((G0.T, G1.T), axis=0)))
+        self.register_buffer('ec_s', torch.Tensor(np.concatenate((H0.T, H1.T), axis=0)))
+        self.register_buffer('ec_d', torch.Tensor(np.concatenate((G0.T, G1.T), axis=0)))
 
-        self.register_buffer("rc_e", torch.Tensor(np.concatenate((H0r, G0r), axis=0)))
-        self.register_buffer("rc_o", torch.Tensor(np.concatenate((H1r, G1r), axis=0)))
+        self.register_buffer('rc_e', torch.Tensor(np.concatenate((H0r, G0r), axis=0)))
+        self.register_buffer('rc_o', torch.Tensor(np.concatenate((H1r, G1r), axis=0)))
 
     def forward(self, x):
         B, N, c, k = x.shape  # (B, N, k)

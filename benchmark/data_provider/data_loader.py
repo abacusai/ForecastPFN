@@ -7,21 +7,21 @@ from torch.utils.data import Dataset
 
 from utils.timefeatures import time_features
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings('ignore')
 
 
 class Dataset_Custom(Dataset):
     def __init__(
         self,
         root_path,
-        flag="train",
+        flag='train',
         size=None,
-        features="S",
-        data_path="ETTh1.csv",
-        target="OT",
+        features='S',
+        data_path='ETTh1.csv',
+        target='OT',
         scale=True,
         timeenc=0,
-        freq="h",
+        freq='h',
         scaler=StandardScaler(),
         train_budget=None,
     ):
@@ -36,8 +36,8 @@ class Dataset_Custom(Dataset):
             self.label_len = size[1]
             self.pred_len = size[2]
         # init
-        assert flag in ["train", "test", "val"]
-        type_map = {"train": 0, "val": 1, "test": 2}
+        assert flag in ['train', 'test', 'val']
+        type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
         self.features = features
@@ -60,8 +60,8 @@ class Dataset_Custom(Dataset):
         """
         cols = list(df_raw.columns)
         cols.remove(self.target)
-        cols.remove("date")
-        df_raw = df_raw[["date"] + cols + [self.target]]
+        cols.remove('date')
+        df_raw = df_raw[['date'] + cols + [self.target]]
         # print(cols)
         num_train = int(len(df_raw) * 0.7)
         num_test = int(len(df_raw) * 0.2)
@@ -80,10 +80,10 @@ class Dataset_Custom(Dataset):
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
-        if self.features == "M" or self.features == "MS":
+        if self.features == 'M' or self.features == 'MS':
             cols_data = df_raw.columns[1:]
             df_data = df_raw[cols_data]
-        elif self.features == "S":
+        elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
         if self.scale:
@@ -93,18 +93,18 @@ class Dataset_Custom(Dataset):
         else:
             data = df_data.values
 
-        df_stamp = df_raw[["date"]][border1:border2]
-        df_stamp["date"] = pd.to_datetime(df_stamp.date)
+        df_stamp = df_raw[['date']][border1:border2]
+        df_stamp['date'] = pd.to_datetime(df_stamp.date)
         self.data_stamp_original = df_raw[border1:border2]
         if self.timeenc == 0:
-            df_stamp["month"] = df_stamp.date.apply(lambda row: row.month, 1)
-            df_stamp["day"] = df_stamp.date.apply(lambda row: row.day, 1)
-            df_stamp["weekday"] = df_stamp.date.apply(lambda row: row.weekday(), 1)
-            df_stamp["hour"] = df_stamp.date.apply(lambda row: row.hour, 1)
-            data_stamp = df_stamp.drop(["date"], 1).values
+            df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
+            df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
+            df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
+            df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
+            data_stamp = df_stamp.drop(['date'], 1).values
         elif self.timeenc == 1:
             data_stamp = time_features(
-                pd.to_datetime(df_stamp["date"].values), freq=self.freq
+                pd.to_datetime(df_stamp['date'].values), freq=self.freq
             )
             data_stamp = data_stamp.transpose(1, 0)
 
@@ -122,8 +122,8 @@ class Dataset_Custom(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
-        self.data_stamp_original["date"].values[s_begin:s_end]
-        self.data_stamp_original["date"].values[r_begin:r_end]
+        self.data_stamp_original['date'].values[s_begin:s_end]
+        self.data_stamp_original['date'].values[r_begin:r_end]
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark  # , seq_x_original, seq_y_original
 
@@ -138,15 +138,15 @@ class Dataset_Pred(Dataset):
     def __init__(
         self,
         root_path,
-        flag="pred",
+        flag='pred',
         size=None,
-        features="S",
-        data_path="ETTh1.csv",
-        target="OT",
+        features='S',
+        data_path='ETTh1.csv',
+        target='OT',
         scale=True,
         inverse=False,
         timeenc=0,
-        freq="15min",
+        freq='15min',
         cols=None,
         scaler=StandardScaler(),
     ):
@@ -161,7 +161,7 @@ class Dataset_Pred(Dataset):
             self.label_len = size[1]
             self.pred_len = size[2]
         # init
-        assert flag in ["pred"]
+        assert flag in ['pred']
 
         self.features = features
         self.target = target
@@ -186,15 +186,15 @@ class Dataset_Pred(Dataset):
         else:
             cols = list(df_raw.columns)
             cols.remove(self.target)
-            cols.remove("date")
-        df_raw = df_raw[["date"] + cols + [self.target]]
+            cols.remove('date')
+        df_raw = df_raw[['date'] + cols + [self.target]]
         border1 = len(df_raw) - self.seq_len
         border2 = len(df_raw)
 
-        if self.features == "M" or self.features == "MS":
+        if self.features == 'M' or self.features == 'MS':
             cols_data = df_raw.columns[1:]
             df_data = df_raw[cols_data]
-        elif self.features == "S":
+        elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
         if self.scale:
@@ -203,25 +203,25 @@ class Dataset_Pred(Dataset):
         else:
             data = df_data.values
 
-        tmp_stamp = df_raw[["date"]][border1:border2]
-        tmp_stamp["date"] = pd.to_datetime(tmp_stamp.date)
+        tmp_stamp = df_raw[['date']][border1:border2]
+        tmp_stamp['date'] = pd.to_datetime(tmp_stamp.date)
         pred_dates = pd.date_range(
             tmp_stamp.date.values[-1], periods=self.pred_len + 1, freq=self.freq
         )
 
-        df_stamp = pd.DataFrame(columns=["date"])
+        df_stamp = pd.DataFrame(columns=['date'])
         df_stamp.date = list(tmp_stamp.date.values) + list(pred_dates[1:])
         if self.timeenc == 0:
-            df_stamp["month"] = df_stamp.date.apply(lambda row: row.month, 1)
-            df_stamp["day"] = df_stamp.date.apply(lambda row: row.day, 1)
-            df_stamp["weekday"] = df_stamp.date.apply(lambda row: row.weekday(), 1)
-            df_stamp["hour"] = df_stamp.date.apply(lambda row: row.hour, 1)
-            df_stamp["minute"] = df_stamp.date.apply(lambda row: row.minute, 1)
-            df_stamp["minute"] = df_stamp.minute.map(lambda x: x // 15)
-            data_stamp = df_stamp.drop(["date"], 1).values
+            df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
+            df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
+            df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
+            df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
+            df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
+            df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
+            data_stamp = df_stamp.drop(['date'], 1).values
         elif self.timeenc == 1:
             data_stamp = time_features(
-                pd.to_datetime(df_stamp["date"].values), freq=self.freq
+                pd.to_datetime(df_stamp['date'].values), freq=self.freq
             )
             data_stamp = data_stamp.transpose(1, 0)
 

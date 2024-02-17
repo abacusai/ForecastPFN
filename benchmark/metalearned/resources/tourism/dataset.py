@@ -19,8 +19,8 @@ from common.utils import download_url
 
 @dataclass(frozen=True)
 class TourismMeta:
-    dataset_path = os.path.join(RESOURCES_DIR, "tourism")
-    seasonal_patterns = ["Yearly", "Quarterly", "Monthly"]
+    dataset_path = os.path.join(RESOURCES_DIR, 'tourism')
+    seasonal_patterns = ['Yearly', 'Quarterly', 'Monthly']
     horizons = [4, 8, 24]
     period = [1, 4, 12]
 
@@ -33,9 +33,9 @@ class TourismMeta:
 
 class TourismDataset(TimeseriesLoader):
     def download(self) -> TimeseriesBundle:
-        archive_file = os.path.join(self.path, "m3.zip")
+        archive_file = os.path.join(self.path, 'm3.zip')
         download_url(
-            "https://robjhyndman.com/data/27-3-Athanasopoulos1.zip", archive_file
+            'https://robjhyndman.com/data/27-3-Athanasopoulos1.zip', archive_file
         )
         patoolib.extract_archive(archive_file, outdir=self.path)
 
@@ -43,16 +43,16 @@ class TourismDataset(TimeseriesLoader):
 
         # Yearly
         insample = pd.read_csv(
-            os.path.join(TourismMeta.dataset_path, "yearly_in.csv"), header=0
+            os.path.join(TourismMeta.dataset_path, 'yearly_in.csv'), header=0
         )
         outsample = pd.read_csv(
-            os.path.join(TourismMeta.dataset_path, "yearly_oos.csv"), header=0
+            os.path.join(TourismMeta.dataset_path, 'yearly_oos.csv'), header=0
         )
         outsampleT = outsample.T
 
         for timeseries_id, ts_row in insample.T.iterrows():
             outsample_row = outsampleT.loc[timeseries_id].values
-            start_date = datetime.strptime(str(int(ts_row[[1]])), "%Y")
+            start_date = datetime.strptime(str(int(ts_row[[1]])), '%Y')
             insample_values = ts_row.values[2 : 2 + int(ts_row[[0]])]
             outsample_values = outsample_row[2 : 2 + int(outsample_row[0])]
             values = np.concatenate([insample_values, outsample_values])
@@ -64,23 +64,23 @@ class TourismDataset(TimeseriesLoader):
                     frequency=1,
                     period=1,
                     values=values,
-                    meta={"seasonal_pattern": "Yearly"},
+                    meta={'seasonal_pattern': 'Yearly'},
                 )
             )
 
         # Quarterly
         insample = pd.read_csv(
-            os.path.join(TourismMeta.dataset_path, "quarterly_in.csv"), header=0
+            os.path.join(TourismMeta.dataset_path, 'quarterly_in.csv'), header=0
         )
         outsample = pd.read_csv(
-            os.path.join(TourismMeta.dataset_path, "quarterly_oos.csv"), header=0
+            os.path.join(TourismMeta.dataset_path, 'quarterly_oos.csv'), header=0
         )
         outsampleT = outsample.T
 
         for timeseries_id, ts_row in insample.T.iterrows():
             outsample_row = outsampleT.loc[timeseries_id].values
             start_date = datetime.strptime(
-                f"{str(int(ts_row[[1]]))}-{str((int(ts_row[[2]]) - 1) * 3)}", "%Y-%M"
+                f'{str(int(ts_row[[1]]))}-{str((int(ts_row[[2]]) - 1) * 3)}', '%Y-%M'
             )
             insample_values = ts_row.values[3 : 3 + int(ts_row[[0]])]
             outsample_values = outsample_row[3 : 3 + int(outsample_row[0])]
@@ -93,23 +93,23 @@ class TourismDataset(TimeseriesLoader):
                     frequency=3,
                     period=1,
                     values=values,
-                    meta={"seasonal_pattern": "Quarterly"},
+                    meta={'seasonal_pattern': 'Quarterly'},
                 )
             )
 
         # Monthly
         insample = pd.read_csv(
-            os.path.join(TourismMeta.dataset_path, "monthly_in.csv"), header=0
+            os.path.join(TourismMeta.dataset_path, 'monthly_in.csv'), header=0
         )
         outsample = pd.read_csv(
-            os.path.join(TourismMeta.dataset_path, "monthly_oos.csv"), header=0
+            os.path.join(TourismMeta.dataset_path, 'monthly_oos.csv'), header=0
         )
         outsampleT = outsample.T
 
         for timeseries_id, ts_row in insample.T.iterrows():
             outsample_row = outsampleT.loc[timeseries_id].values
             start_date = datetime.strptime(
-                f"{str(int(ts_row[[1]]))}-{str(int(ts_row[[2]]))}", "%Y-%M"
+                f'{str(int(ts_row[[1]]))}-{str(int(ts_row[[2]]))}', '%Y-%M'
             )
             insample_values = ts_row.values[3 : 3 + int(ts_row[[0]])]
             outsample_values = outsample_row[3 : 3 + int(outsample_row[0])]
@@ -122,7 +122,7 @@ class TourismDataset(TimeseriesLoader):
                     frequency=1,
                     period=1,
                     values=values,
-                    meta={"seasonal_pattern": "Monthly"},
+                    meta={'seasonal_pattern': 'Monthly'},
                 )
             )
 
@@ -132,9 +132,9 @@ class TourismDataset(TimeseriesLoader):
         bundle = self.load_cache()
         horizons_map = TourismMeta().horizons_map()
         return bundle.split(
-            lambda ts: ts.split(-horizons_map[ts.meta["seasonal_pattern"]])
+            lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']])
         )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     TourismDataset(TourismMeta.dataset_path).build_cache()

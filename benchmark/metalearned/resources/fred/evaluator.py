@@ -18,7 +18,7 @@ class FredEvaluator(Evaluator):
         if self.validation:
             horizons_map = FredMeta().horizons_map()
             insamples, _ = insamples.split(
-                lambda ts: ts.split(-horizons_map[ts.meta["seasonal_pattern"]])
+                lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']])
             )
 
         grouped_smapes = {
@@ -39,14 +39,14 @@ class FredEvaluator(Evaluator):
         scores_summary = OrderedDict()
 
         weighted_score = {}
-        for sp in ["Yearly", "Quarterly", "Monthly", "Weekly", "Daily"]:
+        for sp in ['Yearly', 'Quarterly', 'Monthly', 'Weekly', 'Daily']:
             weighted_score[sp] = scores[sp] * len(
                 self.filter_by_sp(self.test_set, sp).timeseries
             )
             scores_summary[sp] = scores[sp]
 
         average = np.sum(list(weighted_score.values())) / len(self.test_set.timeseries)
-        scores_summary["Average"] = average
+        scores_summary['Average'] = average
 
         return scores_summary
 
@@ -54,7 +54,7 @@ class FredEvaluator(Evaluator):
     def filter_by_sp(
         bundle: TimeseriesBundle, seasonal_pattern: str
     ) -> TimeseriesBundle:
-        return bundle.filter(lambda ts: ts.meta["seasonal_pattern"] == seasonal_pattern)
+        return bundle.filter(lambda ts: ts.meta['seasonal_pattern'] == seasonal_pattern)
 
     @staticmethod
     def round_values(scores: OrderedDict):

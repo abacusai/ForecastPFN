@@ -33,22 +33,22 @@ def __generate(
 
     # annual, monthly, weekly, hourly and minutely components
     a, m, w, h, minute = 0.0, 0.0, 0.0, 0.0, 0.0
-    if freq == "min":
+    if freq == 'min':
         minute = np.random.uniform(0.0, 1.0)
         h = np.random.uniform(0.0, 0.2)
-    elif freq == "H":
+    elif freq == 'H':
         minute = np.random.uniform(0.0, 0.2)
         h = np.random.uniform(0.0, 1)
-    elif freq == "D":
+    elif freq == 'D':
         w = np.random.uniform(0.0, 1.0)
         m = np.random.uniform(0.0, 0.2)
-    elif freq == "W":
+    elif freq == 'W':
         m = np.random.uniform(0.0, 0.3)
         a = np.random.uniform(0.0, 0.3)
-    elif freq == "MS":
+    elif freq == 'MS':
         w = np.random.uniform(0.0, 0.1)
         a = np.random.uniform(0.0, 0.5)
-    elif freq == "Y":
+    elif freq == 'Y':
         w = np.random.uniform(0.0, 0.2)
         a = np.random.uniform(0.0, 1)
     else:
@@ -105,12 +105,12 @@ def generate(
 
     if Config.transition:
         coeff = get_transition_coefficients(CONTEXT_LENGTH)
-        values = coeff * series1["values"] + (1 - coeff) * series2["values"]
+        values = coeff * series1['values'] + (1 - coeff) * series2['values']
     else:
-        values = series1["values"]
+        values = series1['values']
 
-    dataframe_data = {"series_values": values, "noise": series1["noise"]}
+    dataframe_data = {'series_values': values, 'noise': series1['noise']}
 
     return cfg1, pd.DataFrame(
-        data=dataframe_data, index=series1["dates"]
+        data=dataframe_data, index=series1['dates']
     )  # .clip(lower=0.0)
