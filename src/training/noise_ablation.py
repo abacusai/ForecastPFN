@@ -11,7 +11,17 @@ import yaml
 from config_variables import Config
 from create_train_test_df import create_train_test_df
 from keras import backend
+from metalearned_validation import (
+    m3_monthly_test_df,
+    m3_others_test_df,
+    m3_quarterly_test_df,
+    m3_yearly_test_df,
+    tourism_monthly_test_df,
+    tourism_quarterly_test_df,
+    tourism_yearly_test_df,
+)
 from models import TransformerModel
+from train import AdditionalValidationSets
 from utils import load_tf_dataset
 
 
