@@ -73,7 +73,7 @@ class Exp_Metalearn(Exp_Basic):
         return model.to(self.device)
 
     def train(self, setting):
-        return
+        pass
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')

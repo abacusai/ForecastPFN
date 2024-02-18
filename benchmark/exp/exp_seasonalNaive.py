@@ -16,7 +16,7 @@ class Exp_SeasonalNaive(Exp_Basic):
         return pmdarima.auto_arima
 
     def train(self, setting):
-        return
+        pass
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')

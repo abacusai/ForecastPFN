@@ -31,10 +31,10 @@ class Exp_ForecastPFN(Exp_Basic):
         super(Exp_ForecastPFN, self).__init__(args)
 
     def _build_model(self):
-        return
+        pass
 
     def train(self, setting):
-        return
+        pass
 
     def _ForecastPFN_time_features(self, ts: np.ndarray):
         if type(ts[0]) == datetime.datetime:

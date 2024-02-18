@@ -122,8 +122,8 @@ class Dataset_Custom(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
-        self.data_stamp_original['date'].values[s_begin:s_end]
-        self.data_stamp_original['date'].values[r_begin:r_end]
+        # seq_x_original = self.data_stamp_original["date"].values[s_begin:s_end]
+        # seq_y_original = self.data_stamp_original["date"].values[r_begin:r_end]
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark  # , seq_x_original, seq_y_original
 
