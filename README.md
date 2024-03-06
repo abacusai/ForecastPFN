@@ -115,3 +115,15 @@ The config file has the following parameters which can be modified as per requir
 - scaler : Set this to robust/max. We have discovered that robust scaling works better and provides faster convergence.
 - test_noise : Setting this to True will add noise to the validation data as well. In our default setting, we only include noise in the training data.
 - sub_day : Set this to True if the synthetic data contains sub-daily records.
+
+
+# Citation 
+Please cite our work if you use code from this repo:
+```bibtex
+@inproceedings{dooley2023forecastpfn,
+  title={ForecastPFN: Synthetically-trained zero-shot forecasting},
+  author={Dooley, Samuel and Khurana, Gurnoor Singh and Mohapatra, Chirag and Naidu, Siddartha V and White, Colin},
+  booktitle={Advances in Neural Information Processing Systems},
+  year={2023}
+}
+```
