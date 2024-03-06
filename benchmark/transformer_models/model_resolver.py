@@ -1,17 +1,15 @@
-import pandas as pd
-import numpy as np
-import prophet
 import pmdarima
+import prophet
 
-from transformer_models.models import FEDformer, Autoformer, Informer, Transformer
+from transformer_models.models import Autoformer, FEDformer, Informer, Transformer
 
 
-class Arima():
+class Arima:
     def __init__(self) -> None:
         self.model = pmdarima.auto_arima
 
 
-class Prophet():
+class Prophet:
     def __init__(self) -> None:
         self.model = prophet.Prophet()
 

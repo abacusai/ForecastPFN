@@ -12,7 +12,7 @@ ForecastPFN is more accurate and faster compared to state-of-the-art forecasting
 
 The codebase has these parts: 
 - `./src/` contains all code to replicate the ForecastPFN synthetic data generation and training procedure
-- `./benchmark/` contains all the code to replicate the benchmark of ForecastPFN against the the other baselines. 
+- `./benchmark/` contains all the code to replicate the benchmark of ForecastPFN against the other baselines. 
 
 # Table of contents
 1. [Installation](#installation-)
@@ -80,7 +80,7 @@ The arguments that are passed are:
 See how our model performs:
 ![alt text](img/fpfn_performance.png?raw=true)
 
-The above figure shows analysis of performance vs. train budget, aggregated across datasets and prediction lengths. We plot the number of total MSE wins (left) where a higher value is better and mean MSE rank (right) where a lower values is better. Error bars show one standard deviation across training runs. ForecastPFN and Meta-N-BEATS are disadvantaged in these comparisons given that they see no training data for these series, only the length 36 input.
+The above figure shows an analysis of performance vs. train budget, aggregated across datasets and prediction lengths. We plot the number of total MSE wins (left) where a higher value is better and mean MSE rank (right) where a lower value is better. Error bars show one standard deviation across training runs. ForecastPFN and Meta-N-BEATS are disadvantaged in these comparisons given that they see no training data for these series, only the length 36 input.
 
 # Synthetic Data Generation <a name="SyntheticDataGeneration"></a>
 ForecastPFN is completely trained on synthetic data.

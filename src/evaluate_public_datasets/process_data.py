@@ -3,9 +3,9 @@ Module to process the real world datasets and store
 them as a tfrecords file
 """
 import csv
-import tensorflow as tf
-import numpy as np
+
 import pandas as pd
+
 
 def read_timeseries_file(filename):
     """
@@ -27,4 +27,3 @@ def generate_tf_test_examples(name, train_data, test_data, freq):
     dates = pd.date_range(start='2010-01-01', periods=len_data, freq=freq)
 
     return name, dates, train_data, test_data
-

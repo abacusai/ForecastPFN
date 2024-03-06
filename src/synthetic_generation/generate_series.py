@@ -2,19 +2,21 @@
 Module to generate synthetic series
 """
 
+from datetime import date
+
 import numpy as np
 import pandas as pd
-from datetime import date
-from pandas.tseries.frequencies import to_offset
-from constants import *
 from config_variables import Config
+from constants import BASE_END, BASE_START, CONTEXT_LENGTH
 from generate_series_components import make_series
-from utils import sample_scale, get_transition_coefficients
-from series_config import ComponentScale, SeriesConfig, ComponentNoise
+from pandas.tseries.frequencies import to_offset
 from scipy.stats import beta
+from series_config import ComponentNoise, ComponentScale, SeriesConfig
+from utils import get_transition_coefficients, sample_scale
+
 
 def __generate(
-    n = 100,
+    n=100,
     freq_index: int = None,
     start: pd.Timestamp = None,
     options: dict = {},
@@ -31,22 +33,22 @@ def __generate(
 
     # annual, monthly, weekly, hourly and minutely components
     a, m, w, h, minute = 0.0, 0.0, 0.0, 0.0, 0.0
-    if freq == "min":
+    if freq == 'min':
         minute = np.random.uniform(0.0, 1.0)
         h = np.random.uniform(0.0, 0.2)
-    elif freq == "H":
+    elif freq == 'H':
         minute = np.random.uniform(0.0, 0.2)
         h = np.random.uniform(0.0, 1)
-    elif freq == "D":
+    elif freq == 'D':
         w = np.random.uniform(0.0, 1.0)
         m = np.random.uniform(0.0, 0.2)
-    elif freq == "W":
+    elif freq == 'W':
         m = np.random.uniform(0.0, 0.3)
         a = np.random.uniform(0.0, 0.3)
-    elif freq == "MS":
+    elif freq == 'MS':
         w = np.random.uniform(0.0, 0.1)
         a = np.random.uniform(0.0, 0.5)
-    elif freq == "Y":
+    elif freq == 'Y':
         w = np.random.uniform(0.0, 0.2)
         a = np.random.uniform(0.0, 1)
     else:
@@ -54,7 +56,9 @@ def __generate(
 
     if start is None:
         # start = pd.Timestamp(date.fromordinal(np.random.randint(BASE_START, BASE_END)))
-        start = pd.Timestamp(date.fromordinal(int((BASE_START - BASE_END)*beta.rvs(5,1)+BASE_START)))
+        start = pd.Timestamp(
+            date.fromordinal(int((BASE_START - BASE_END) * beta.rvs(5, 1) + BASE_START))
+        )
 
     scale_config = ComponentScale(
         1.0,
@@ -64,7 +68,7 @@ def __generate(
         m=m,
         w=w,
         minute=minute,
-        h=h
+        h=h,
     )
 
     offset_config = ComponentScale(
@@ -77,17 +81,16 @@ def __generate(
     )
 
     noise_config = ComponentNoise(
-        k=np.random.uniform(1, 5),
-        median=1,
-        scale=sample_scale()
+        k=np.random.uniform(1, 5), median=1, scale=sample_scale()
     )
 
     cfg = SeriesConfig(scale_config, offset_config, noise_config)
 
     return cfg, make_series(cfg, to_offset(freq), n, start, options, random_walk)
 
+
 def generate(
-    n = 100,
+    n=100,
     freq_index: int = None,
     start: pd.Timestamp = None,
     options: dict = {},
@@ -106,10 +109,8 @@ def generate(
     else:
         values = series1['values']
 
-    dataframe_data = {
-        'series_values': values,
-        'noise': series1['noise']
-    }
+    dataframe_data = {'series_values': values, 'noise': series1['noise']}
 
-    return cfg1, pd.DataFrame(data=dataframe_data, index=series1['dates'])#.clip(lower=0.0)
-
+    return cfg1, pd.DataFrame(
+        data=dataframe_data, index=series1['dates']
+    )  # .clip(lower=0.0)

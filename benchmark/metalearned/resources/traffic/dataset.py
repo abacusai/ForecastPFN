@@ -5,12 +5,10 @@ from typing import Tuple
 
 import numpy as np
 import patoolib
-from tqdm import tqdm
-
 from common.settings import RESOURCES_DIR
-from common.timeseries import Timeseries, TimeseriesBundle, TimeseriesLoader, Hour
+from common.timeseries import Hour, Timeseries, TimeseriesBundle, TimeseriesLoader
 from common.utils import download_url
-
+from tqdm import tqdm
 
 """
 Hourly aggregated dataset from https://archive.ics.uci.edu/ml/datasets/PEMS-SF
@@ -19,6 +17,8 @@ As it is used in https://www.cs.utexas.edu/~rofuyu/papers/tr-mf-nips.pdf
 Dataset was also compared with the one built by the TRMF paper's author:
 https://github.com/rofuyu/exp-trmf-nips16/blob/master/python/exp-scripts/datasets/download-data.sh
 """
+
+
 @dataclass(frozen=True)
 class TrafficMeta:
     dataset_path = os.path.join(RESOURCES_DIR, 'traffic')
@@ -38,8 +38,10 @@ class TrafficDataset(TimeseriesLoader):
         train_raw_file = os.path.join(self.path, 'PEMS_train')
         test_raw_file = os.path.join(self.path, 'PEMS_test')
         perm_raw_file = os.path.join(self.path, 'randperm')
-        download_url('https://archive.ics.uci.edu/ml/machine-learning-databases/00204/PEMS-SF.zip',
-                     archive_file)
+        download_url(
+            'https://archive.ics.uci.edu/ml/machine-learning-databases/00204/PEMS-SF.zip',
+            archive_file,
+        )
         patoolib.extract_archive(archive_file, outdir=self.path)
         with open(train_raw_file, 'r') as f:
             train_raw_data = f.readlines()
@@ -47,7 +49,9 @@ class TrafficDataset(TimeseriesLoader):
             test_raw_data = f.readlines()
         with open(perm_raw_file, 'r') as f:
             permutations = f.readlines()
-        permutations = np.array(permutations[0].rstrip()[1:-1].split(' ')).astype(np.int)
+        permutations = np.array(permutations[0].rstrip()[1:-1].split(' ')).astype(
+            np.int
+        )
 
         raw_data = train_raw_data + test_raw_data
 
@@ -77,7 +81,9 @@ class TrafficDataset(TimeseriesLoader):
         #  - Mar. 8, 2009 - Anomaly
         #  ------------------------------------------
         # Thus 455 - 15 = 440 days from 2008-01-01 to 2008-03-30 (incl.)
-        start_date = datetime.strptime('2008-01-02', '%Y-%m-%d')  # 2008-01-01 is a holiday
+        start_date = datetime.strptime(
+            '2008-01-02', '%Y-%m-%d'
+        )  # 2008-01-01 is a holiday
         current_date = start_date
         excluded_dates = [
             datetime.strptime('2008-01-21', '%Y-%m-%d'),
@@ -110,18 +116,27 @@ class TrafficDataset(TimeseriesLoader):
                     values = np.concatenate([values, daily], axis=1)
             else:  # should never be in the first 24*7 records.
                 # fill gaps with same day of previous week.
-                values = np.concatenate([values, values[:, -24 * 7 * 6:-24 * 6 * 6]], axis=1)
+                values = np.concatenate(
+                    [values, values[:, -24 * 7 * 6 : -24 * 6 * 6]], axis=1
+                )
             current_date += timedelta(days=1)
 
         # aggregate 10 minutes events to hourly
-        hourly = np.array([list(map(np.mean, zip(*(iter(lane),) * 6))) for lane in tqdm(values)])
-        timeseries = [Timeseries(id=str(i),
-                                 start_date=start_date,
-                                 time_unit=Hour(),
-                                 frequency=1,
-                                 period=24 * 7,
-                                 values=values,
-                                 meta={}) for i, values in enumerate(hourly)]
+        hourly = np.array(
+            [list(map(np.mean, zip(*(iter(lane),) * 6))) for lane in tqdm(values)]
+        )
+        timeseries = [
+            Timeseries(
+                id=str(i),
+                start_date=start_date,
+                time_unit=Hour(),
+                frequency=1,
+                period=24 * 7,
+                values=values,
+                meta={},
+            )
+            for i, values in enumerate(hourly)
+        ]
         return TimeseriesBundle(timeseries=timeseries)
 
     def standard_split(self) -> Tuple[TimeseriesBundle, TimeseriesBundle]:

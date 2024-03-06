@@ -1,16 +1,19 @@
 """
 Module to prepare customer dataset for evaluation
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
 import tensorflow as tf
-import tensorflow_io
 
 HISTORY = 100
 
+
 def compute_time_features(ts: np.ndarray):
     ts = pd.to_datetime(ts)
-    return np.stack([ts.year, ts.month, ts.day, ts.day_of_week + 1, ts.day_of_year], axis=-1)
+    return np.stack(
+        [ts.year, ts.month, ts.day, ts.day_of_week + 1, ts.day_of_year], axis=-1
+    )
+
 
 def build_input(ts, target, task=1):
     horizon = len(ts) - len(target)
@@ -31,11 +34,15 @@ def build_input(ts, target, task=1):
     date_tensor = date_tensor[-HISTORY:]
     return {
         'ts': tf.repeat(tf.expand_dims(date_tensor, axis=0), [horizon], axis=0),
-
         # repeat the before horizon values horizon number of times,
         # so that for each of the predictions for each target_ts, you
         # have an available set of features
         'history': tf.repeat(tf.expand_dims(target, axis=0), [horizon], axis=0),
         'target_ts': tf.expand_dims(target_dates, axis=1),
-        'task': tf.fill([horizon,], task),
+        'task': tf.fill(
+            [
+                horizon,
+            ],
+            task,
+        ),
     }

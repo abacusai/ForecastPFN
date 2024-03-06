@@ -21,10 +21,10 @@ NUM_TASKS = 10
 
 CONTEXT_LENGTH = 500
 TF_SCHEMA = {
-    "id": tf.io.FixedLenFeature([], dtype=tf.string),
-    "ts": tf.io.FixedLenFeature([CONTEXT_LENGTH], dtype=tf.int64),
-    "y": tf.io.FixedLenFeature([CONTEXT_LENGTH], dtype=tf.float32),
-    "noise": tf.io.FixedLenFeature([CONTEXT_LENGTH], dtype=tf.float32)
+    'id': tf.io.FixedLenFeature([], dtype=tf.string),
+    'ts': tf.io.FixedLenFeature([CONTEXT_LENGTH], dtype=tf.int64),
+    'y': tf.io.FixedLenFeature([CONTEXT_LENGTH], dtype=tf.float32),
+    'noise': tf.io.FixedLenFeature([CONTEXT_LENGTH], dtype=tf.float32),
 }
 
 

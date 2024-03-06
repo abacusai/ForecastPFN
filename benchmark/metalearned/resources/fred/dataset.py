@@ -4,11 +4,17 @@ import pickle
 from dataclasses import dataclass
 from typing import Tuple
 
-from tqdm import tqdm
-
 from common.settings import RESOURCES_DIR
-from common.timeseries import Timeseries, TimeseriesBundle, TimeseriesLoader, Year, Month, Day
+from common.timeseries import (
+    Day,
+    Month,
+    Timeseries,
+    TimeseriesBundle,
+    TimeseriesLoader,
+    Year,
+)
 from resources.fred.api import FredAPI
+from tqdm import tqdm
 
 
 @dataclass(frozen=True)
@@ -36,7 +42,7 @@ class FredDataset(TimeseriesLoader):
             'Quarterly': (Month(), 3),
             'Monthly': (Month(), 1),
             'Weekly': (Day(), 7),
-            'Daily': (Day(), 1)
+            'Daily': (Day(), 1),
         }
 
         period_map = FredMeta().period_map()
@@ -44,26 +50,33 @@ class FredDataset(TimeseriesLoader):
         timeseries = []
         for ts_id, record in tqdm(raw_data.items()):
             sp = record['time_unit']
-            frequency = [frequency_map[s] for s in frequency_map.keys() if sp.startswith(s)]
+            frequency = [
+                frequency_map[s] for s in frequency_map.keys() if sp.startswith(s)
+            ]
             period = [period_map[s] for s in period_map.keys() if sp.startswith(s)]
             if len(frequency) > 0:
                 frequency = frequency[0]
             else:
-                raise Exception(f"Cannot match frequency for: {sp}")
+                raise Exception(f'Cannot match frequency for: {sp}')
             if len(period) > 0:
                 period = period[0]
             else:
-                raise Exception(f"Cannot match frequency for: {sp}")
-            timeseries.append(Timeseries(id=ts_id,
-                                         start_date=record['start_date'],
-                                         time_unit=frequency[0],
-                                         frequency=frequency[1],
-                                         period=period,
-                                         values=record['values'],
-                                         meta={'seasonal_pattern': sp}
-                                         ))
-        grouped_timeseries = [list(filter(lambda ts: ts.meta['seasonal_pattern'] == sp, timeseries))
-                              for sp in FredMeta.seasonal_patterns]
+                raise Exception(f'Cannot match frequency for: {sp}')
+            timeseries.append(
+                Timeseries(
+                    id=ts_id,
+                    start_date=record['start_date'],
+                    time_unit=frequency[0],
+                    frequency=frequency[1],
+                    period=period,
+                    values=record['values'],
+                    meta={'seasonal_pattern': sp},
+                )
+            )
+        grouped_timeseries = [
+            list(filter(lambda ts: ts.meta['seasonal_pattern'] == sp, timeseries))
+            for sp in FredMeta.seasonal_patterns
+        ]
         grouped_timeseries = [ts for sp_ts in grouped_timeseries for ts in sp_ts]
 
         return TimeseriesBundle(grouped_timeseries)
@@ -71,7 +84,9 @@ class FredDataset(TimeseriesLoader):
     def standard_split(self) -> Tuple[TimeseriesBundle, TimeseriesBundle]:
         bundle = self.load_cache()
         horizons_map = FredMeta().horizons_map()
-        return bundle.split(lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']]))
+        return bundle.split(
+            lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']])
+        )
 
 
 if __name__ == '__main__':

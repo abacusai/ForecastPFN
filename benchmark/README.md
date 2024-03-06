@@ -1,4 +1,4 @@
-This directory is for evaluation of ForecastPFN. We have evaluated ForecastPFN on seven real-world datasets which have been used in the literature. The datasets are in the `../academic_data` folder. The datasets include Illness, Exchange, ECL, ETTh1 and ETTh2, Weather and Traffic.
+This directory is for the evaluation of ForecastPFN. We have evaluated ForecastPFN on seven real-world datasets that have been used in the literature. The datasets are in the `../academic_data` folder. The datasets include Illness, Exchange, ECL, ETTh1 and ETTh2, Weather and Traffic.
 
 The evaluation has been done against multiple baselines which include Arima, Prophet, Informer, Fedformer-w, Autoformer, Transformer and Metalearn, as well as more simple baselines Mean, Last, and NaiveSeasonal.
 
@@ -24,12 +24,12 @@ The arguments that are passed are:
 - `root_path` : This denotes the parent directory which contains the required dataset.
 - `data_path` : This denotes the name of the file which contains the data. Look into the academic_data folder for information regarding other dataset files.
 - `model` : This is one of (ForecastPFN, Metalearn, Arima, Autoformer, Informer, Transformer, FEDformer-w, Prophet)
-- `seq_len` : The length of input sequence to be used. In our default setting, we have this set to 96 for exchange and 36 for all other datasets.
+- `seq_len` : The length of the input sequence to be used. In our default setting, we have this set to 96 for exchange and 36 for all other datasets.
 - `label_len` : In our default setting, we have this set to 48 for exchange and 18 for all other datasets.
-- `pred_len` : This is the length of prediction to be made. We have evaluated our model with various prediction lengths.
-- `train_budget` : This denotes the number of training examples that are available to the models which they can use for training. ForecastPFN and Metalearn use 0 examples since they are zero-shot.
+- `pred_len` : This is the length of the prediction to be made. We have evaluated our model with various prediction lengths.
+- `train_budget` : This denotes the number of training examples that are available to the models that they can use for training. ForecastPFN and Metalearn use 0 examples since they are zero-shot.
 - `itr` : Number of times evaluation should be repeated. This affects the transformer-based models since they are non-deterministic.
 
 All experiments that have been run for this paper can be found in `run.sh`. 
 
-Repliaction of the paper tables and plots can be found in the jupyter notebook `./analyze_results.ipynb`.
+Replication of the paper tables and plots can be found in the jupyter notebook `./analyze_results.ipynb`.

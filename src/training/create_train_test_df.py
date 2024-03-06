@@ -2,10 +2,16 @@
 Module to create train and test dfs
 """
 import tensorflow as tf
-import tensorflow_io
-from prepare_dataset import gen_random_single_point, gen_mean_to_random_date, \
-    gen_std_to_random_date, filter_unusable_points, build_frames, gen_random_single_point_no_noise, \
-    gen_mean_to_random_date_no_noise, gen_std_to_random_date_no_noise
+from prepare_dataset import (
+    build_frames,
+    filter_unusable_points,
+    gen_mean_to_random_date,
+    gen_mean_to_random_date_no_noise,
+    gen_random_single_point,
+    gen_random_single_point_no_noise,
+    gen_std_to_random_date,
+    gen_std_to_random_date_no_noise,
+)
 
 
 def remove_noise(x, y):
@@ -20,9 +26,11 @@ def remove_noise(x, y):
             'ts': x['ts'],
             'history': x['history'],
             'target_ts': x['target_ts'],
-            'task': x['task']
-        }, y
+            'task': x['task'],
+        },
+        y,
     )
+
 
 def create_train_test_df(combined_ds, test_noise=False):
     """
@@ -36,20 +44,24 @@ def create_train_test_df(combined_ds, test_noise=False):
     task_map = {
         'point': gen_random_single_point,
         'mean': gen_mean_to_random_date,
-        'stdev': gen_std_to_random_date
+        'stdev': gen_std_to_random_date,
     }
     train_tasks_dfs = [
         base_train_df.map(func, num_parallel_calls=tf.data.AUTOTUNE)
         for func in task_map.values()
     ]
-    train_df = tf.data.Dataset.choose_from_datasets(
-        train_tasks_dfs, tf.data.Dataset.range(len(train_tasks_dfs)).repeat()
-    ).unbatch().filter(filter_unusable_points)
+    train_df = (
+        tf.data.Dataset.choose_from_datasets(
+            train_tasks_dfs, tf.data.Dataset.range(len(train_tasks_dfs)).repeat()
+        )
+        .unbatch()
+        .filter(filter_unusable_points)
+    )
 
     task_map_test = {
         'point': gen_random_single_point_no_noise,
         'mean': gen_mean_to_random_date_no_noise,
-        'stdev': gen_std_to_random_date_no_noise
+        'stdev': gen_std_to_random_date_no_noise,
     }
 
     if test_noise:
@@ -63,9 +75,13 @@ def create_train_test_df(combined_ds, test_noise=False):
             for func in task_map_test.values()
         ]
 
-    test_df = tf.data.Dataset.choose_from_datasets(
-        test_tasks_dfs, tf.data.Dataset.range(len(test_tasks_dfs)).repeat()
-    ).unbatch().filter(filter_unusable_points)
+    test_df = (
+        tf.data.Dataset.choose_from_datasets(
+            test_tasks_dfs, tf.data.Dataset.range(len(test_tasks_dfs)).repeat()
+        )
+        .unbatch()
+        .filter(filter_unusable_points)
+    )
 
     # remove noise and target_noise from train and test df as they are now useless
     # train_df = train_df.map(remove_noise)

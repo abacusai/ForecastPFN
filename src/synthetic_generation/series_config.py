@@ -1,8 +1,9 @@
 """
 Module containing dataclasses for synthetic data generator
 """
-import numpy as np
 from dataclasses import dataclass
+
+import numpy as np
 
 
 @dataclass
@@ -17,6 +18,7 @@ class ComponentScale:
     h: np.ndarray = None
     minute: np.ndarray = None
 
+
 @dataclass
 class ComponentNoise:
     # shape parameter for the weibull distribution
@@ -28,6 +30,7 @@ class ComponentNoise:
     # no noise can be represented by scale = 0
     scale: float
 
+
 @dataclass
 class SeriesConfig:
     scale: ComponentScale
@@ -35,4 +38,4 @@ class SeriesConfig:
     noise_config: ComponentNoise
 
     def __str__(self):
-        return f"L{1000*self.scale.linear:+02.0f}E{10000*(self.scale.exp - 1):+02.0f}A{100*self.scale.a:02.0f}M{100*self.scale.m:02.0f}W{100*self.scale.w:02.0f}"
+        return f'L{1000*self.scale.linear:+02.0f}E{10000*(self.scale.exp - 1):+02.0f}A{100*self.scale.a:02.0f}M{100*self.scale.m:02.0f}W{100*self.scale.w:02.0f}'

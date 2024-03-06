@@ -1,21 +1,34 @@
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
 
 def _model_is_transformer(model):
-    if model in ['FEDformer', 'FEDformer-f', 'FEDformer-w', 'FEDformer_Meta', 'Autoformer', 'Informer', 'Transformer']:
+    if model in [
+        'FEDformer',
+        'FEDformer-f',
+        'FEDformer-w',
+        'FEDformer_Meta',
+        'Autoformer',
+        'Informer',
+        'Transformer',
+    ]:
         return True
     return False
 
+
 def setting_string(args, ii):
-    setting = '{}_{}_sl{}_ll{}_pl{}_timebudget_{}_trainbudget_{}_model-path_{}_itr_{}'.format(
-        args.model,
-        args.data,
-        args.seq_len,
-        args.label_len,
-        args.pred_len,
-        args.time_budget,
-        args.train_budget,
-        args.model_name,
-        ii)
+    setting = (
+        '{}_{}_sl{}_ll{}_pl{}_timebudget_{}_trainbudget_{}_model-path_{}_itr_{}'.format(
+            args.model,
+            args.data,
+            args.seq_len,
+            args.label_len,
+            args.pred_len,
+            args.time_budget,
+            args.train_budget,
+            args.model_name,
+            ii,
+        )
+    )
     return setting
 
 
@@ -34,7 +47,6 @@ def resolve_args(args):
     if args.scaler == 'minmax':
         args.scaler = MinMaxScaler()
     return args
-
 
 
 def resolve_transformer_args(args):

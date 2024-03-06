@@ -12,10 +12,12 @@ parameters_file_name = 'parameters.json'
 command_file_name = 'experiment.cmd'
 
 
-def create_experiment(experiment_path: str,
-                      parameters: Dict,
-                      command: Callable[[str, Dict], str],
-                      callback: Callable[[str, Dict], None] = lambda path, params: None) -> None:
+def create_experiment(
+    experiment_path: str,
+    parameters: Dict,
+    command: Callable[[str, Dict], str],
+    callback: Callable[[str, Dict], None] = lambda path, params: None,
+) -> None:
     """
     Create experiment.
     If parameters contain keys with multiple values, then multiple sub-experiments will be created.
@@ -40,8 +42,13 @@ def create_experiment(experiment_path: str,
     logging.info('Generating experiments ...')
     for variables_instance in tqdm(product(*experiment_variables)):
         sub_experiment_name = ','.join(
-            ['%s=%.4g' % (name, value) if isinstance(value, float) else '%s=%s' % (name, str(value).replace(' ', '_'))
-             for name, value in dict(variables_instance).items()])
+            [
+                '%s=%.4g' % (name, value)
+                if isinstance(value, float)
+                else '%s=%s' % (name, str(value).replace(' ', '_'))
+                for name, value in dict(variables_instance).items()
+            ]
+        )
         sub_experiment_path = os.path.join(experiment_path, sub_experiment_name)
         Path(sub_experiment_path).mkdir(parents=True, exist_ok=False)
 
@@ -51,7 +58,9 @@ def create_experiment(experiment_path: str,
         # write command file
         with open(os.path.join(sub_experiment_path, command_file_name), 'w') as f:
             f.write(command(sub_experiment_path, dict(variables_instance)))
-        callback(sub_experiment_path, dict(**{**parameters, **dict(variables_instance)}))
+        callback(
+            sub_experiment_path, dict(**{**parameters, **dict(variables_instance)})
+        )
 
 
 def load_experiment_parameters(experiment_path: str) -> Dict:

@@ -4,8 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
-
-from common.evaluator import Evaluator, EvaluationResult
+from common.evaluator import EvaluationResult, Evaluator
 from common.metrics import mase, smape_2
 from common.timeseries import TimeseriesBundle
 from common.utils import clean_nans, round_half_up
@@ -21,11 +20,19 @@ class M4Evaluator(Evaluator):
         insamples, _ = M4Dataset(M4Meta.dataset_path).standard_split()
         if self.validation:
             horizons_map = M4Meta().horizons_map()
-            insamples, _ = insamples.split(lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']]))
+            insamples, _ = insamples.split(
+                lambda ts: ts.split(-horizons_map[ts.meta['seasonal_pattern']])
+            )
 
-        grouped_smapes = {sp: np.mean(smape_2(forecast=np.array(M4Dataset.filter(forecast, sp).values()),
-                                              target=np.array(M4Dataset.filter(self.test_set, sp).values())))
-                          for sp in M4Meta.seasonal_patterns}
+        grouped_smapes = {
+            sp: np.mean(
+                smape_2(
+                    forecast=np.array(M4Dataset.filter(forecast, sp).values()),
+                    target=np.array(M4Dataset.filter(self.test_set, sp).values()),
+                )
+            )
+            for sp in M4Meta.seasonal_patterns
+        }
 
         grouped_smapes = self.summarize_groups(grouped_smapes)
 
@@ -33,7 +40,8 @@ class M4Evaluator(Evaluator):
             grouped_owa = OrderedDict()
             if not self.validation:
                 naive2_forecasts = pd.read_csv(
-                    os.path.join(M4Meta.dataset_path, 'submission-Naive2.csv'))
+                    os.path.join(M4Meta.dataset_path, 'submission-Naive2.csv')
+                )
                 naive2_forecasts.set_index(keys='id', inplace=True)
 
                 model_mases = {}
@@ -41,32 +49,56 @@ class M4Evaluator(Evaluator):
                 naive2_mases = {}
                 for sp in M4Meta.seasonal_patterns:
                     model_forecasts = M4Dataset.filter(forecast, sp)
-                    naive2_forecast = clean_nans(naive2_forecasts.loc[model_forecasts.ids()].values)
+                    naive2_forecast = clean_nans(
+                        naive2_forecasts.loc[model_forecasts.ids()].values
+                    )
 
                     model_forecast_values = model_forecasts.values()
 
-                    target = self.test_set.filter(lambda ts: ts.meta['seasonal_pattern'] == sp)
+                    target = self.test_set.filter(
+                        lambda ts: ts.meta['seasonal_pattern'] == sp
+                    )
                     target_values = np.array(target.values())
                     # all timeseries within group have same frequency
                     period = target.period()[0]
                     insample = M4Dataset.filter(insamples, sp).values()
 
-                    model_mases[sp] = np.mean([mase(forecast=model_forecast_values[i],
-                                                    insample=insample[i],
-                                                    outsample=target_values[i],
-                                                    frequency=period) for i in range(len(model_forecast_values))])
-                    naive2_mases[sp] = np.mean([mase(forecast=naive2_forecast[i],
-                                                     insample=insample[i],
-                                                     outsample=target_values[i],
-                                                     frequency=period) for i in range(len(model_forecast_values))])
+                    model_mases[sp] = np.mean(
+                        [
+                            mase(
+                                forecast=model_forecast_values[i],
+                                insample=insample[i],
+                                outsample=target_values[i],
+                                frequency=period,
+                            )
+                            for i in range(len(model_forecast_values))
+                        ]
+                    )
+                    naive2_mases[sp] = np.mean(
+                        [
+                            mase(
+                                forecast=naive2_forecast[i],
+                                insample=insample[i],
+                                outsample=target_values[i],
+                                frequency=period,
+                            )
+                            for i in range(len(model_forecast_values))
+                        ]
+                    )
 
                     naive2_smapes[sp] = np.mean(smape_2(naive2_forecast, target_values))
                 grouped_model_mases = self.summarize_groups(model_mases)
                 grouped_naive2_smapes = self.summarize_groups(naive2_smapes)
                 grouped_naive2_mases = self.summarize_groups(naive2_mases)
                 for k in grouped_model_mases.keys():
-                    grouped_owa[k] = round_half_up((grouped_model_mases[k] / grouped_naive2_mases[k] +
-                                                    grouped_smapes[k] / grouped_naive2_smapes[k]) / 2, 3)
+                    grouped_owa[k] = round_half_up(
+                        (
+                            grouped_model_mases[k] / grouped_naive2_mases[k]
+                            + grouped_smapes[k] / grouped_naive2_smapes[k]
+                        )
+                        / 2,
+                        3,
+                    )
             return self.round_values(grouped_owa)
         else:
             return self.round_values(grouped_smapes)
@@ -76,7 +108,9 @@ class M4Evaluator(Evaluator):
 
         weighted_score = {}
         for sp in ['Yearly', 'Quarterly', 'Monthly', 'Weekly', 'Daily', 'Hourly']:
-            weighted_score[sp] = scores[sp] * len(M4Dataset.filter(self.test_set, sp).timeseries)
+            weighted_score[sp] = scores[sp] * len(
+                M4Dataset.filter(self.test_set, sp).timeseries
+            )
             scores_summary[sp] = scores[sp]
 
         others_score = 0

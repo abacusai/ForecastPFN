@@ -1,18 +1,21 @@
-import torch
 import os
 from collections import OrderedDict
 from functools import partial
+
+import tensorflow as tf
+import tensorflow_datasets as tfds
+import torch
 from torch.nn import MSELoss
 from torch.optim import Adam
-import tensorflow_datasets as tfds
-import tensorflow as tf
 from tqdm import tqdm
 
 DEFAULT_LOSS = MSELoss()
 DEFAULT_OPTIMIZER = partial(Adam, lr=0.001)
 
 
-load_dir = 'tensorboard/mf_replicate_testnoiseT_shuffle5Millilon.20230714-133237/models/51'
+load_dir = (
+    'tensorboard/mf_replicate_testnoiseT_shuffle5Millilon.20230714-133237/models/51'
+)
 
 
 def numpy_to_torch(X, device):
@@ -63,12 +66,16 @@ class TFRecordDataLoader:
 
 
 class AdditionalValidationSets:
-    def __init__(self, validation_sets, batch_size=1, metrics=[], loss=DEFAULT_LOSS, device=None):
+    def __init__(
+        self, validation_sets, batch_size=1, metrics=[], loss=DEFAULT_LOSS, device=None
+    ):
         self.validation_sets = []
         for validation_set in validation_sets:
             if len(validation_set) not in [2]:
                 raise ValueError()
-            self.validation_sets.append([tfds.as_numpy(validation_set[0]), validation_set[1]])
+            self.validation_sets.append(
+                [tfds.as_numpy(validation_set[0]), validation_set[1]]
+            )
         self.epoch = []
         self.metrics = metrics
         self.loss = loss
@@ -88,7 +95,16 @@ class AdditionalValidationSets:
                 validation_data, validation_set_name = validation_set
             else:
                 raise ValueError()
-            results = add_metrics_to_log(model, validation_data, self.loss, self.metrics, tbCallback, f'add_valid/{validation_set_name}/', epoch, self.device)
+            results = add_metrics_to_log(
+                model,
+                validation_data,
+                self.loss,
+                self.metrics,
+                tbCallback,
+                f'add_valid/{validation_set_name}/',
+                epoch,
+                self.device,
+            )
             log.update(results)
         self.logs[epoch] = log
         return log
@@ -106,13 +122,17 @@ def predict(model, data, device, steps_per_epoch=None):
         y_batch_pred = model(X_batch)
         y_batch_pred, y_batch = model.transform_output(y_batch_pred, y_batch)
         y_true = y_batch if y_true is None else torch.concat([y_true, y_batch])
-        y_pred = y_batch_pred if y_pred is None else torch.concat([y_pred, y_batch_pred])
+        y_pred = (
+            y_batch_pred if y_pred is None else torch.concat([y_pred, y_batch_pred])
+        )
         if steps_per_epoch is not None and batch_i >= steps_per_epoch:
             break
     return y_true, y_pred
 
 
-def add_metrics_to_log(model, data, loss, metrics, writer, prefix, epoch, device, steps_per_epoch=None):
+def add_metrics_to_log(
+    model, data, loss, metrics, writer, prefix, epoch, device, steps_per_epoch=None
+):
     with torch.no_grad():
         y_true, y_pred = predict(model, data, device, steps_per_epoch)
         y_true = y_true.reshape(-1)
@@ -130,23 +150,25 @@ def add_metrics_to_log(model, data, loss, metrics, writer, prefix, epoch, device
     return log
 
 
-def fit(model,
-        train_df,
-        batch_size=1024,
-        epochs=1,
-        verbose=1,
-        valid_df=None,
-        shuffle=0,
-        initial_epoch=0,
-        seed=None,
-        loss=DEFAULT_LOSS,
-        optimizer=DEFAULT_OPTIMIZER,
-        metrics=None,
-        writer=None,
-        device='cpu',
-        steps_per_epoch=None,
-        logdir=None,
-        additional_validation_sets=[]):
+def fit(
+    model,
+    train_df,
+    batch_size=1024,
+    epochs=1,
+    verbose=1,
+    valid_df=None,
+    shuffle=0,
+    initial_epoch=0,
+    seed=None,
+    loss=DEFAULT_LOSS,
+    optimizer=DEFAULT_OPTIMIZER,
+    metrics=None,
+    writer=None,
+    device='cpu',
+    steps_per_epoch=None,
+    logdir=None,
+    additional_validation_sets=[],
+):
     """Trains the model similar to Keras' .fit(...) method
 
     # Arguments
@@ -183,7 +205,9 @@ def fit(model,
 
     # Build DataLoaders
     valid_data = TFRecordDataLoader(valid_df, batch_size)
-    additional_valid_data = AdditionalValidationSets(additional_validation_sets, metrics=metrics, loss=loss, device=device)
+    additional_valid_data = AdditionalValidationSets(
+        additional_validation_sets, metrics=metrics, loss=loss, device=device
+    )
     # Compile optimizer
     opt = optimizer(model.parameters())
     # load = torch.load(load_dir)
@@ -192,11 +216,11 @@ def fit(model,
     # Run training loop
     logs = []
     for t in tqdm(range(initial_epoch, epochs)):
-        logfile.write(f"Epoch: {t+1}\n")
+        logfile.write(f'Epoch: {t+1}\n')
         train_data = TFRecordDataLoader(train_df, batch_size, True, shuffle)
         model.train()
         if verbose and t % 10 == 0:
-            print("Epoch {0} / {1}".format(t + 1, epochs))
+            print('Epoch {0} / {1}'.format(t + 1, epochs))
         log = OrderedDict()
         epoch_loss = 0.0
         # Run batches
@@ -222,18 +246,27 @@ def fit(model,
         # train_metric_log = add_metrics_to_log(model, train_data, loss, metrics, writer, prefix='train/metrics/', epoch=t, device=device, steps_per_epoch=steps_per_epoch)
         # log.update(train_metric_log)
         if valid_data is not None:
-            val_metric_log = add_metrics_to_log(model, valid_data, loss, metrics, writer, prefix='valid/metrics/', epoch=t, device=device)
+            val_metric_log = add_metrics_to_log(
+                model,
+                valid_data,
+                loss,
+                metrics,
+                writer,
+                prefix='valid/metrics/',
+                epoch=t,
+                device=device,
+            )
             log.update(val_metric_log)
         # Additional validation set
         if t % 10 == 0:
             add_log = additional_valid_data.on_epoch_end(model, t, writer)
-            logfile.write(str(add_log)+'\n')
+            logfile.write(str(add_log) + '\n')
             to_save = {
-                "model": model.state_dict(),
-                "optimizer": opt.state_dict(),
+                'model': model.state_dict(),
+                'optimizer': opt.state_dict(),
             }
             torch.save(to_save, logdir + f'/models/{t+1}')
-        logfile.write(str(log)+'\n')
+        logfile.write(str(log) + '\n')
         logfile.flush()
         logs.append(log)
 

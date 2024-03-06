@@ -1,9 +1,12 @@
 import os
-import torch
+
 import numpy as np
+import torch
+
 from data_provider.data_factory import data_provider
-from utils.tools import TimeBudget
 from utils.metrics import metric
+from utils.tools import TimeBudget
+
 
 class Exp_Basic(object):
     def __init__(self, args):
@@ -20,8 +23,9 @@ class Exp_Basic(object):
 
     def _acquire_device(self):
         if self.args.use_gpu:
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(
-                self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
+            os.environ['CUDA_VISIBLE_DEVICES'] = (
+                str(self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
+            )
             device = torch.device('cuda:{}'.format(self.args.gpu))
             print('Use GPU: cuda:{}'.format(self.args.gpu))
         else:
@@ -48,8 +52,8 @@ class Exp_Basic(object):
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
-        f = open("result.txt", 'a')
-        f.write(setting + "  \n")
+        f = open('result.txt', 'a')
+        f.write(setting + '  \n')
         f.write('mse:{}, mae:{}'.format(mse, mae))
         f.write('\n')
         f.write('\n')
@@ -58,15 +62,15 @@ class Exp_Basic(object):
         output = {
             'metrics': {
                 'mae': mae,
-                'mse': mse, 
-                'rmse': rmse, 
-                'mape': mape, 
+                'mse': mse,
+                'rmse': rmse,
+                'mape': mape,
                 'mspe': mspe,
             },
             'train_timer': self.train_timer.total_time,
             'vali_timer': self.vali_timer.total_time,
             'test_timer': self.test_timer.total_time,
-            'args': self.args
+            'args': self.args,
         }
         print(output)
 

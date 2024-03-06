@@ -66,5 +66,5 @@ def get_transition_coefficients(context_length):
     m = (a + b) / 2
     k = 1 / (a - m) * np.log(f_a / (1 - f_a))
 
-    coeff = 1 / (1 + np.exp(-k * (np.arange(1, context_length+1) - m)))
+    coeff = 1 / (1 + np.exp(-k * (np.arange(1, context_length + 1) - m)))
     return coeff

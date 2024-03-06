@@ -1,5 +1,7 @@
-from data_provider.data_loader import Dataset_Custom
 from torch.utils.data import DataLoader
+
+from data_provider.data_loader import Dataset_Custom
+
 # from metalearned.resources.electricity.dataset import ElectricityDataset, ElectricityMeta
 # from metalearned.resources.m3.dataset import M3Dataset, M3Meta
 # from metalearned.resources.m4.dataset import M4Dataset, M4Meta
@@ -74,5 +76,6 @@ def data_provider(args, flag):
         batch_size=batch_size,
         shuffle=shuffle_flag,
         num_workers=args.num_workers,
-        drop_last=drop_last)
+        drop_last=drop_last,
+    )
     return data_set, data_loader

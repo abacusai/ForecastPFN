@@ -2,8 +2,8 @@
 Utility functions for training script
 """
 import tensorflow as tf
-import tensorflow_io
 from constants import TF_SCHEMA
+
 
 def decode_fn(record_bytes):
     """
